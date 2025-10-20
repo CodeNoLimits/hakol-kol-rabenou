@@ -434,8 +434,95 @@ async function buildVerseHTML(verseNum, hebrew, english) {
 }
 
 // ===================================
-// Translation to French
+// Translation to French - AVEC CHUNKING INTELLIGENT
 // ===================================
+
+// Découpe un texte long en morceaux intelligents (par phrases)
+function splitTextIntoChunks(text, maxLength = 450) {
+    if (text.length <= maxLength) return [text];
+    
+    const chunks = [];
+    const sentences = text.split(/(?<=[.!?])\s+/); // Split par phrases
+    let currentChunk = '';
+    
+    for (const sentence of sentences) {
+        // Si la phrase seule est trop longue, la découper par mots
+        if (sentence.length > maxLength) {
+            if (currentChunk) {
+                chunks.push(currentChunk.trim());
+                currentChunk = '';
+            }
+            
+            const words = sentence.split(' ');
+            for (const word of words) {
+                if ((currentChunk + ' ' + word).length > maxLength) {
+                    if (currentChunk) chunks.push(currentChunk.trim());
+                    currentChunk = word;
+                } else {
+                    currentChunk += (currentChunk ? ' ' : '') + word;
+                }
+            }
+        } else {
+            // Ajouter la phrase au chunk actuel si ça rentre
+            if ((currentChunk + ' ' + sentence).length > maxLength) {
+                chunks.push(currentChunk.trim());
+                currentChunk = sentence;
+            } else {
+                currentChunk += (currentChunk ? ' ' : '') + sentence;
+            }
+        }
+    }
+    
+    if (currentChunk) chunks.push(currentChunk.trim());
+    return chunks.filter(c => c.length > 0);
+}
+
+// Traduit UN chunk de texte (≤ 450 caractères)
+async function translateChunk(chunk, useLibreTranslate = true) {
+    try {
+        if (useLibreTranslate) {
+            // Tentative 1: LibreTranslate
+            const response = await fetch(LIBRE_TRANSLATE_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    q: chunk,
+                    source: 'en',
+                    target: 'fr',
+                    format: 'text'
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.translatedText) {
+                    return data.translatedText;
+                }
+            }
+        }
+        
+        // Tentative 2: MyMemory API (fallback)
+        const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|fr`;
+        const response2 = await fetch(myMemoryUrl);
+        
+        if (response2.ok) {
+            const data2 = await response2.json();
+            if (data2.responseData && data2.responseData.translatedText) {
+                return data2.responseData.translatedText;
+            }
+        }
+        
+        return null;
+        
+    } catch (error) {
+        console.error('Translation chunk error:', error);
+        return null;
+    }
+}
+
+// Fonction principale de traduction avec support des textes longs
 async function translateToFrench(text) {
     // Convertir en string si nécessaire
     if (typeof text !== 'string') {
@@ -450,55 +537,72 @@ async function translateToFrench(text) {
     
     if (!text || text.trim() === '') return '';
     
-    // Limite de 500 caractères par appel pour éviter les timeouts
-    if (text.length > 500) {
-        text = text.substring(0, 500) + '...';
-    }
-    
     try {
-        // Tentative 1: LibreTranslate
-        try {
-            const response = await fetch(LIBRE_TRANSLATE_API, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    q: text,
-                    source: 'en',
-                    target: 'fr',
-                    format: 'text'
-                }),
-                timeout: 5000
-            });
+        // Si le texte est court (≤ 450 caractères), traduction directe
+        if (text.length <= 450) {
+            const translated = await translateChunk(text, true);
+            return translated || `📝 [EN] ${text}`;
+        }
+        
+        // TEXTE LONG: Découper en chunks
+        console.log(`📏 Texte long (${text.length} caractères) - Découpage en cours...`);
+        const chunks = splitTextIntoChunks(text, 450);
+        console.log(`✂️ ${chunks.length} morceaux créés`);
+        
+        // Notification à l'utilisateur
+        if (window.HakolKolRabenou && window.HakolKolRabenou.showNotification) {
+            window.HakolKolRabenou.showNotification(
+                `🔄 Traduction longue en cours... (${chunks.length} parties à traduire)`,
+                'info'
+            );
+        }
+        
+        const translatedChunks = [];
+        let successCount = 0;
+        
+        // Traduire chaque chunk avec une petite pause entre chaque
+        for (let i = 0; i < chunks.length; i++) {
+            console.log(`🔄 Traduction morceau ${i + 1}/${chunks.length}... (${Math.round((i / chunks.length) * 100)}%)`);
             
-            if (response.ok) {
-                const data = await response.json();
-                if (data.translatedText) {
-                    return data.translatedText;
-                }
+            const translated = await translateChunk(chunks[i], true);
+            
+            if (translated) {
+                translatedChunks.push(translated);
+                successCount++;
+            } else {
+                // Si échec, garder l'anglais pour ce morceau
+                translatedChunks.push(chunks[i]);
             }
-        } catch (e) {
-            console.log('LibreTranslate failed, trying alternative...');
-        }
-        
-        // Tentative 2: MyMemory API (gratuit, pas de clé requise)
-        const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|fr`;
-        const response2 = await fetch(myMemoryUrl);
-        
-        if (response2.ok) {
-            const data2 = await response2.json();
-            if (data2.responseData && data2.responseData.translatedText) {
-                return data2.responseData.translatedText;
+            
+            // Pause de 200ms entre chaque requête pour éviter le rate limiting
+            if (i < chunks.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 200));
             }
         }
         
-        // Si tout échoue, retourner un indicateur
-        return `🔄 [Traduction en cours...] ${text}`;
+        console.log(`✅ Traduction terminée: ${successCount}/${chunks.length} morceaux traduits`);
+        
+        // Notification de fin
+        if (window.HakolKolRabenou && window.HakolKolRabenou.showNotification) {
+            window.HakolKolRabenou.showNotification(
+                `✅ Traduction complétée! (${successCount}/${chunks.length} parties traduites)`,
+                'success'
+            );
+        }
+        
+        // Recombiner tous les morceaux traduits
+        const fullTranslation = translatedChunks.join(' ');
+        
+        // Notification si traduction partielle
+        if (successCount < chunks.length) {
+            console.warn(`⚠️ Traduction partielle: ${successCount}/${chunks.length} morceaux`);
+        }
+        
+        return fullTranslation;
         
     } catch (error) {
         console.error('Translation error:', error);
-        return `📝 [EN] ${text}`;
+        return `📝 [EN] ${text.substring(0, 200)}...`;
     }
 }
 
