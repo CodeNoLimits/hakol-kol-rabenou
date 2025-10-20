@@ -5,51 +5,90 @@
 const SEFARIA_API_BASE = 'https://www.sefaria.org/api';
 const LIBRE_TRANSLATE_API = 'https://libretranslate.de/translate'; // Free API
 
-// Breslov texts available on Sefaria
+// Breslov texts available on Sefaria - COMPLETE LIST
 const BRESLOV_TEXTS = [
     {
-        name: 'Likutei Moharan',
-        hebrewName: 'ליקוטי מוהר"ן',
-        englishName: 'Likutei Moharan',
-        ref: 'Likutei Moharan',
-        description: 'Enseignements principaux du Rabbi Nachman'
+        name: 'Likutei Moharan I',
+        hebrewName: 'ליקוטי מוהר"ן א',
+        englishName: 'Likutei Moharan I',
+        ref: 'Likutei Moharan I',
+        description: 'Enseignements principaux du Rabbi Nachman - Partie 1',
+        sections: 282
+    },
+    {
+        name: 'Likutei Moharan II',
+        hebrewName: 'ליקוטי מוהר"ן ב',
+        englishName: 'Likutei Moharan II',
+        ref: 'Likutei Moharan II',
+        description: 'Enseignements principaux du Rabbi Nachman - Partie 2',
+        sections: 125
     },
     {
         name: 'Sichot HaRan',
         hebrewName: 'שיחות הר"ן',
         englishName: 'Sichot HaRan',
         ref: 'Sichot HaRan',
-        description: 'Conversations du Rabbi Nachman'
+        description: 'Conversations du Rabbi Nachman',
+        sections: 326
     },
     {
         name: 'Sefer HaMidot',
         hebrewName: 'ספר המדות',
         englishName: 'Sefer HaMidot',
         ref: 'Sefer HaMidot',
-        description: 'Le Livre des Traits de Caractère'
+        description: 'Le Livre des Traits de Caractère',
+        sections: 50
     },
     {
-        name: 'Sipurei Maasiot',
+        name: "Sipurei Maasiot",
         hebrewName: 'סיפורי מעשיות',
-        englishName: "Rabbi Nachman's Stories",
-        ref: "Rabbi Nachman's Stories",
-        description: 'Les Contes du Rabbi Nachman'
+        englishName: "Sipurei Maasiot",
+        ref: "Sipurei Maasiot",
+        description: 'Les 13 Contes du Rabbi Nachman',
+        sections: 13
     },
     {
         name: 'Likutei Tefilot',
         hebrewName: 'ליקוטי תפילות',
         englishName: 'Likutei Tefilot',
         ref: 'Likutei Tefilot',
-        description: 'Prières basées sur les enseignements'
+        description: 'Prières de Reb Noson basées sur le Likutei Moharan',
+        sections: 210
+    },
+    {
+        name: 'Likutei Halakhot',
+        hebrewName: 'ליקוטי הלכות',
+        englishName: 'Likutei Halakhot',
+        ref: 'Likutei Halakhot',
+        description: 'Commentaires halakhiques de Reb Noson',
+        sections: 100
+    },
+    {
+        name: 'Chayei Moharan',
+        hebrewName: 'חיי מוהר"ן',
+        englishName: 'Chayei Moharan',
+        ref: 'Chayei Moharan',
+        description: 'Biographie du Rabbi Nachman',
+        sections: 100
+    },
+    {
+        name: 'Likutei Etzot',
+        hebrewName: 'ליקוטי עצות',
+        englishName: 'Likutei Etzot',
+        ref: 'Likutei Etzot',
+        description: 'Conseils du Rabbi Nachman par sujets',
+        sections: 100
     }
 ];
 
 // State Management
 let currentBook = null;
-let currentSection = null;
-let autoTranslate = false;
+let currentSection = 1;
+let currentChapter = 1;
+let autoTranslate = true; // ACTIVÉ PAR DÉFAUT
 let showHebrew = true;
 let showEnglish = true;
+let maxSections = 1;
 
 // ===================================
 // Initialize Library Page
@@ -132,6 +171,7 @@ async function loadBook(ref) {
         }
         
         currentBook = ref;
+        currentSection = 1; // Reset à la section 1
         textNavigation.style.display = 'flex';
         
     } catch (error) {
@@ -154,6 +194,14 @@ async function loadBook(ref) {
 async function displayText(textData, indexData) {
     const textReader = document.getElementById('textReader');
     const chapterInfo = document.getElementById('chapterInfo');
+    
+    // Extract section number from ref
+    if (textData.ref) {
+        const match = textData.ref.match(/(\d+)$/);
+        if (match) {
+            currentSection = parseInt(match[1]);
+        }
+    }
     
     // Update chapter info
     if (chapterInfo) {
@@ -237,34 +285,57 @@ async function buildVerseHTML(verseNum, hebrew, english) {
 // Translation to French
 // ===================================
 async function translateToFrench(text) {
-    if (!text) return '';
+    if (!text || text.trim() === '') return '';
+    
+    // Limite de 500 caractères par appel pour éviter les timeouts
+    if (text.length > 500) {
+        text = text.substring(0, 500) + '...';
+    }
     
     try {
-        // Use LibreTranslate API (free, open-source)
-        const response = await fetch(LIBRE_TRANSLATE_API, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                q: text,
-                source: 'en',
-                target: 'fr',
-                format: 'text'
-            })
-        });
-        
-        if (!response.ok) {
-            console.warn('Translation API error');
-            return '';
+        // Tentative 1: LibreTranslate
+        try {
+            const response = await fetch(LIBRE_TRANSLATE_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    q: text,
+                    source: 'en',
+                    target: 'fr',
+                    format: 'text'
+                }),
+                timeout: 5000
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.translatedText) {
+                    return data.translatedText;
+                }
+            }
+        } catch (e) {
+            console.log('LibreTranslate failed, trying alternative...');
         }
         
-        const data = await response.json();
-        return data.translatedText || '';
+        // Tentative 2: MyMemory API (gratuit, pas de clé requise)
+        const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|fr`;
+        const response2 = await fetch(myMemoryUrl);
+        
+        if (response2.ok) {
+            const data2 = await response2.json();
+            if (data2.responseData && data2.responseData.translatedText) {
+                return data2.responseData.translatedText;
+            }
+        }
+        
+        // Si tout échoue, retourner un indicateur
+        return `🔄 [Traduction en cours...] ${text}`;
         
     } catch (error) {
         console.error('Translation error:', error);
-        return '';
+        return `📝 [EN] ${text}`;
     }
 }
 
@@ -391,11 +462,64 @@ function displaySearchResults(results) {
 // Navigation
 // ===================================
 function loadPreviousSection() {
-    window.HakolKolRabenou.showNotification('Navigation entre sections bientôt disponible', 'info');
+    if (!currentBook || currentSection <= 1) {
+        window.HakolKolRabenou.showNotification('Vous êtes au début du livre', 'info');
+        return;
+    }
+    
+    currentSection--;
+    const ref = `${currentBook} ${currentSection}`;
+    loadSpecificSection(ref);
 }
 
 function loadNextSection() {
-    window.HakolKolRabenou.showNotification('Navigation entre sections bientôt disponible', 'info');
+    if (!currentBook) {
+        window.HakolKolRabenou.showNotification('Veuillez d\'abord sélectionner un livre', 'info');
+        return;
+    }
+    
+    // Trouver le nombre max de sections pour ce livre
+    const bookData = BRESLOV_TEXTS.find(b => b.ref === currentBook);
+    if (bookData && currentSection >= bookData.sections) {
+        window.HakolKolRabenou.showNotification('Vous êtes à la fin du livre', 'info');
+        return;
+    }
+    
+    currentSection++;
+    const ref = `${currentBook} ${currentSection}`;
+    loadSpecificSection(ref);
+}
+
+async function loadSpecificSection(ref) {
+    const textReader = document.getElementById('textReader');
+    const textNavigation = document.getElementById('textNavigation');
+    
+    textReader.innerHTML = `
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Chargement de ${ref}...</p>
+        </div>
+    `;
+    
+    try {
+        const textResponse = await fetch(`${SEFARIA_API_BASE}/texts/${encodeURIComponent(ref)}?commentary=0&context=0`);
+        
+        if (!textResponse.ok) throw new Error('Section non disponible');
+        
+        const textData = await textResponse.json();
+        displayText(textData, { title: currentBook });
+        textNavigation.style.display = 'flex';
+        
+    } catch (error) {
+        console.error('Error loading section:', error);
+        textReader.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Section non disponible</h3>
+                <p>Cette section n'existe pas ou n'est pas encore disponible sur Sefaria.</p>
+            </div>
+        `;
+    }
 }
 
 // ===================================
