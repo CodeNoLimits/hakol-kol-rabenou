@@ -421,7 +421,8 @@ async function buildVerseHTML(verseNum, hebrew, english) {
     
     if (autoTranslate && english) {
         const french = await translateToFrench(english);
-        if (french) {
+        // N'afficher que si la traduction est différente de l'anglais (vraie traduction)
+        if (french && french !== english && !french.includes('[EN]')) {
             html += `
                 <div class="translation-badge french">Français (Auto)</div>
                 <div class="verse-text french">${french}</div>
@@ -431,6 +432,47 @@ async function buildVerseHTML(verseNum, hebrew, english) {
     
     html += '</div>';
     return html;
+}
+
+// ===================================
+// Translation Progress Bar
+// ===================================
+
+function showTranslationProgress(totalChunks) {
+    const progressBar = document.getElementById('translationProgress');
+    if (progressBar) {
+        progressBar.classList.add('show');
+        updateTranslationProgress(0, totalChunks, Date.now());
+    }
+}
+
+function updateTranslationProgress(current, total, startTime) {
+    const percentage = Math.round((current / total) * 100);
+    const elapsed = (Date.now() - startTime) / 1000;
+    const remaining = current > 0 ? (elapsed / current) * (total - current) : 0;
+    
+    const progressPercentage = document.getElementById('progressPercentage');
+    const progressBarFill = document.getElementById('progressBarFill');
+    const progressCurrent = document.getElementById('progressCurrent');
+    const progressTime = document.getElementById('progressTime');
+    
+    if (progressPercentage) progressPercentage.textContent = `${percentage}%`;
+    if (progressBarFill) progressBarFill.style.width = `${percentage}%`;
+    if (progressCurrent) progressCurrent.textContent = `${current} / ${total} morceaux traduits`;
+    if (progressTime) {
+        if (remaining > 0) {
+            progressTime.textContent = `Temps restant: ${Math.ceil(remaining)}s`;
+        } else {
+            progressTime.textContent = `Démarrage...`;
+        }
+    }
+}
+
+function hideTranslationProgress() {
+    const progressBar = document.getElementById('translationProgress');
+    if (progressBar) {
+        progressBar.classList.remove('show');
+    }
 }
 
 // ===================================
@@ -480,37 +522,45 @@ function splitTextIntoChunks(text, maxLength = 450) {
 // Traduit UN chunk de texte (≤ 450 caractères)
 async function translateChunk(chunk, useLibreTranslate = true) {
     try {
-        if (useLibreTranslate) {
-            // Tentative 1: LibreTranslate
-            const response = await fetch(LIBRE_TRANSLATE_API, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    q: chunk,
-                    source: 'en',
-                    target: 'fr',
-                    format: 'text'
-                })
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.translatedText) {
-                    return data.translatedText;
+        // Toujours utiliser MyMemory en priorité (plus fiable et gratuit)
+        const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|fr`;
+        const response = await fetch(myMemoryUrl);
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.responseData && data.responseData.translatedText) {
+                const translated = data.responseData.translatedText;
+                // Vérifier que ce n'est pas juste une copie de l'anglais
+                if (translated && translated !== chunk) {
+                    return translated;
                 }
             }
         }
         
-        // Tentative 2: MyMemory API (fallback)
-        const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|fr`;
-        const response2 = await fetch(myMemoryUrl);
-        
-        if (response2.ok) {
-            const data2 = await response2.json();
-            if (data2.responseData && data2.responseData.translatedText) {
-                return data2.responseData.translatedText;
+        // Fallback: LibreTranslate (si MyMemory échoue)
+        if (useLibreTranslate) {
+            try {
+                const response2 = await fetch(LIBRE_TRANSLATE_API, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        q: chunk,
+                        source: 'en',
+                        target: 'fr',
+                        format: 'text'
+                    })
+                });
+                
+                if (response2.ok) {
+                    const data2 = await response2.json();
+                    if (data2.translatedText && data2.translatedText !== chunk) {
+                        return data2.translatedText;
+                    }
+                }
+            } catch (e) {
+                console.log('LibreTranslate failed:', e);
             }
         }
         
@@ -541,7 +591,8 @@ async function translateToFrench(text) {
         // Si le texte est court (≤ 450 caractères), traduction directe
         if (text.length <= 450) {
             const translated = await translateChunk(text, true);
-            return translated || `📝 [EN] ${text}`;
+            // Ne retourner que si c'est une vraie traduction (pas l'anglais)
+            return (translated && translated !== text) ? translated : null;
         }
         
         // TEXTE LONG: Découper en chunks
@@ -549,20 +600,20 @@ async function translateToFrench(text) {
         const chunks = splitTextIntoChunks(text, 450);
         console.log(`✂️ ${chunks.length} morceaux créés`);
         
-        // Notification à l'utilisateur
-        if (window.HakolKolRabenou && window.HakolKolRabenou.showNotification) {
-            window.HakolKolRabenou.showNotification(
-                `🔄 Traduction longue en cours... (${chunks.length} parties à traduire)`,
-                'info'
-            );
-        }
+        // Afficher la barre de progression
+        showTranslationProgress(chunks.length);
         
         const translatedChunks = [];
         let successCount = 0;
+        const startTime = Date.now();
         
         // Traduire chaque chunk avec une petite pause entre chaque
         for (let i = 0; i < chunks.length; i++) {
-            console.log(`🔄 Traduction morceau ${i + 1}/${chunks.length}... (${Math.round((i / chunks.length) * 100)}%)`);
+            const percentage = Math.round(((i + 1) / chunks.length) * 100);
+            console.log(`🔄 Traduction morceau ${i + 1}/${chunks.length}... (${percentage}%)`);
+            
+            // Mettre à jour la barre de progression
+            updateTranslationProgress(i + 1, chunks.length, startTime);
             
             const translated = await translateChunk(chunks[i], true);
             
@@ -570,8 +621,8 @@ async function translateToFrench(text) {
                 translatedChunks.push(translated);
                 successCount++;
             } else {
-                // Si échec, garder l'anglais pour ce morceau
-                translatedChunks.push(chunks[i]);
+                // Si échec, on ne garde PAS l'anglais, on marque comme échec
+                translatedChunks.push(''); // Vide au lieu de l'anglais
             }
             
             // Pause de 200ms entre chaque requête pour éviter le rate limiting
@@ -582,16 +633,17 @@ async function translateToFrench(text) {
         
         console.log(`✅ Traduction terminée: ${successCount}/${chunks.length} morceaux traduits`);
         
-        // Notification de fin
-        if (window.HakolKolRabenou && window.HakolKolRabenou.showNotification) {
-            window.HakolKolRabenou.showNotification(
-                `✅ Traduction complétée! (${successCount}/${chunks.length} parties traduites)`,
-                'success'
-            );
+        // Cacher la barre de progression avec un petit délai
+        setTimeout(() => hideTranslationProgress(), 1000);
+        
+        // Si moins de 50% de succès, ne pas afficher de traduction française
+        if (successCount < chunks.length * 0.5) {
+            console.warn(`❌ Échec de traduction: seulement ${successCount}/${chunks.length} morceaux traduits`);
+            return null; // Ne pas afficher de traduction
         }
         
-        // Recombiner tous les morceaux traduits
-        const fullTranslation = translatedChunks.join(' ');
+        // Recombiner tous les morceaux traduits (filtrer les vides)
+        const fullTranslation = translatedChunks.filter(c => c.length > 0).join(' ');
         
         // Notification si traduction partielle
         if (successCount < chunks.length) {
@@ -602,7 +654,7 @@ async function translateToFrench(text) {
         
     } catch (error) {
         console.error('Translation error:', error);
-        return `📝 [EN] ${text.substring(0, 200)}...`;
+        return null; // Ne pas afficher de traduction si erreur
     }
 }
 

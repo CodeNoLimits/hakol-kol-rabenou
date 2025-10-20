@@ -18,6 +18,26 @@
     <link rel="stylesheet" href="css/library.css">
 </head>
 <body>
+    <!-- Translation Progress Bar -->
+    <div class="translation-progress" id="translationProgress">
+        <div class="progress-container">
+            <div class="progress-header">
+                <div class="progress-title">
+                    <div class="progress-spinner"></div>
+                    <span>Traduction en français en cours...</span>
+                </div>
+                <div class="progress-percentage" id="progressPercentage">0%</div>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-details">
+                <span id="progressCurrent">0 / 0 morceaux traduits</span>
+                <span id="progressTime">Temps estimé: --</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="container">
