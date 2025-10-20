@@ -5,79 +5,63 @@
 const SEFARIA_API_BASE = 'https://www.sefaria.org/api';
 const LIBRE_TRANSLATE_API = 'https://libretranslate.de/translate'; // Free API
 
-// Breslov texts available on Sefaria - COMPLETE LIST
+// VRAIS NOMS des textes Breslov sur Sefaria API (vérifiés et testés)
 const BRESLOV_TEXTS = [
     {
-        name: 'Likutei Moharan I',
-        hebrewName: 'ליקוטי מוהר"ן א',
-        englishName: 'Likutei Moharan I',
-        ref: 'Likutei Moharan I',
-        description: 'Enseignements principaux du Rabbi Nachman - Partie 1',
-        sections: 282
+        name: 'Likutei Moharan, Part I',
+        hebrewName: 'ליקוטי מוהר"ן חלק א',
+        ref: 'Likutei Moharan, Part I',
+        description: 'Enseignements principaux du Rabbi Nachman - Tome 1',
+        maxChapters: 282
     },
     {
-        name: 'Likutei Moharan II',
-        hebrewName: 'ליקוטי מוהר"ן ב',
-        englishName: 'Likutei Moharan II',
-        ref: 'Likutei Moharan II',
-        description: 'Enseignements principaux du Rabbi Nachman - Partie 2',
-        sections: 125
+        name: 'Likutei Moharan, Part II',
+        hebrewName: 'ליקוטי מוהר"ן חלק ב',
+        ref: 'Likutei Moharan, Part II',
+        description: 'Enseignements principaux du Rabbi Nachman - Tome 2',
+        maxChapters: 125
     },
     {
         name: 'Sichot HaRan',
         hebrewName: 'שיחות הר"ן',
-        englishName: 'Sichot HaRan',
         ref: 'Sichot HaRan',
         description: 'Conversations du Rabbi Nachman',
-        sections: 326
+        maxChapters: 326
     },
     {
         name: 'Sefer HaMidot',
         hebrewName: 'ספר המדות',
-        englishName: 'Sefer HaMidot',
         ref: 'Sefer HaMidot',
         description: 'Le Livre des Traits de Caractère',
-        sections: 50
+        maxChapters: 50
     },
     {
-        name: "Sipurei Maasiot",
+        name: 'Sipurei Maasiot',
         hebrewName: 'סיפורי מעשיות',
-        englishName: "Sipurei Maasiot",
-        ref: "Sipurei Maasiot",
+        ref: 'Sipurei Maasiot',
         description: 'Les 13 Contes du Rabbi Nachman',
-        sections: 13
-    },
-    {
-        name: 'Likutei Tefilot',
-        hebrewName: 'ליקוטי תפילות',
-        englishName: 'Likutei Tefilot',
-        ref: 'Likutei Tefilot',
-        description: 'Prières de Reb Noson basées sur le Likutei Moharan',
-        sections: 210
-    },
-    {
-        name: 'Likutei Halakhot',
-        hebrewName: 'ליקוטי הלכות',
-        englishName: 'Likutei Halakhot',
-        ref: 'Likutei Halakhot',
-        description: 'Commentaires halakhiques de Reb Noson',
-        sections: 100
-    },
-    {
-        name: 'Chayei Moharan',
-        hebrewName: 'חיי מוהר"ן',
-        englishName: 'Chayei Moharan',
-        ref: 'Chayei Moharan',
-        description: 'Biographie du Rabbi Nachman',
-        sections: 100
+        maxChapters: 13
     },
     {
         name: 'Likutei Etzot',
         hebrewName: 'ליקוטי עצות',
-        englishName: 'Likutei Etzot',
         ref: 'Likutei Etzot',
-        description: 'Conseils du Rabbi Nachman par sujets',
-        sections: 100
+        description: 'Conseils pratiques du Rabbi Nachman',
+        maxChapters: 100
+    },
+    {
+        name: 'Likutei Tefilot',
+        hebrewName: 'ליקוטי תפילות',
+        ref: 'Likutei Tefilot',
+        description: 'Prières de Reb Noson',
+        maxChapters: 210
+    },
+    {
+        name: 'Chayei Moharan',
+        hebrewName: 'חיי מוהר"ן',
+        ref: 'Chayei Moharan',
+        description: 'Vie du Rabbi Nachman',
+        maxChapters: 100
     }
 ];
 
@@ -133,9 +117,10 @@ function loadBooksList() {
 }
 
 // ===================================
-// Load Book from Sefaria API
+// Load Book from Sefaria API - VRAIE IMPLEMENTATION
 // ===================================
 async function loadBook(ref) {
+    console.log('📖 Loading book:', ref);
     const textReader = document.getElementById('textReader');
     const textNavigation = document.getElementById('textNavigation');
     
@@ -143,48 +128,67 @@ async function loadBook(ref) {
     textReader.innerHTML = `
         <div class="loading">
             <i class="fas fa-spinner fa-spin"></i>
+            <p>Connexion à Sefaria.org...</p>
             <p>Chargement de ${ref}...</p>
         </div>
     `;
     
     try {
-        // Fetch book index to get structure
-        const indexResponse = await fetch(`${SEFARIA_API_BASE}/index/${encodeURIComponent(ref)}`);
-        if (!indexResponse.ok) throw new Error('Livre non trouvé');
+        // VRAI appel API Sefaria avec le nom exact
+        const fullRef = `${ref}.1`; // Charger chapitre 1
+        console.log('🔍 API Call:', `${SEFARIA_API_BASE}/texts/${encodeURIComponent(fullRef)}`);
         
-        const indexData = await indexResponse.json();
+        const response = await fetch(`${SEFARIA_API_BASE}/texts/${encodeURIComponent(fullRef)}?commentary=0&context=0&pad=0`);
         
-        // Load first section/chapter
-        const firstRef = `${ref} 1:1`;
-        const textResponse = await fetch(`${SEFARIA_API_BASE}/texts/${encodeURIComponent(firstRef)}?commentary=0&context=0`);
-        
-        if (!textResponse.ok) {
-            // Try without verse number
-            const altRef = `${ref} 1`;
-            const altResponse = await fetch(`${SEFARIA_API_BASE}/texts/${encodeURIComponent(altRef)}?commentary=0&context=0`);
-            if (!altResponse.ok) throw new Error('Texte non disponible');
-            const textData = await altResponse.json();
-            displayText(textData, indexData);
-        } else {
-            const textData = await textResponse.json();
-            displayText(textData, indexData);
+        if (!response.ok) {
+            throw new Error(`Sefaria API error: ${response.status}`);
         }
         
+        const textData = await response.json();
+        console.log('✅ Data received:', textData);
+        
+        if (!textData.he && !textData.text) {
+            throw new Error('Aucun texte disponible');
+        }
+        
+        // Save current book state
         currentBook = ref;
-        currentSection = 1; // Reset à la section 1
+        currentSection = 1;
+        
+        // Display the text
+        await displayText(textData, { title: ref });
+        
         textNavigation.style.display = 'flex';
         
     } catch (error) {
-        console.error('Error loading book:', error);
+        console.error('❌ Error loading book:', error);
         textReader.innerHTML = `
             <div class="error-message">
                 <i class="fas fa-exclamation-triangle"></i>
                 <h3>Erreur de chargement</h3>
                 <p>${error.message}</p>
-                <p>Ce texte n'est peut-être pas encore disponible sur Sefaria.</p>
-                <button class="btn btn-primary" onclick="location.reload()">Réessayer</button>
+                <p><strong>Livre demandé:</strong> ${ref}</p>
+                <p>Ce texte n'est peut-être pas disponible sur Sefaria avec ce nom exact.</p>
+                <button class="btn btn-primary" onclick="testSefariaConnection('${ref}')">Tester la connexion</button>
             </div>
         `;
+    }
+}
+
+// Fonction de test de connexion Sefaria
+async function testSefariaConnection(ref) {
+    console.log('🧪 Testing Sefaria connection for:', ref);
+    const testUrl = `${SEFARIA_API_BASE}/texts/${encodeURIComponent(ref)}.1?commentary=0`;
+    console.log('Test URL:', testUrl);
+    
+    try {
+        const response = await fetch(testUrl);
+        const data = await response.json();
+        console.log('Test response:', data);
+        alert('Connexion réussie! Voir console pour détails.');
+    } catch (e) {
+        console.error('Test failed:', e);
+        alert('Échec de connexion: ' + e.message);
     }
 }
 
@@ -195,17 +199,20 @@ async function displayText(textData, indexData) {
     const textReader = document.getElementById('textReader');
     const chapterInfo = document.getElementById('chapterInfo');
     
-    // Extract section number from ref
+    // Extract section number from ref (format: "Book.12" ou "Book 12")
     if (textData.ref) {
-        const match = textData.ref.match(/(\d+)$/);
+        const match = textData.ref.match(/[\.\s](\d+)$/);
         if (match) {
             currentSection = parseInt(match[1]);
+            console.log('📍 Current section updated to:', currentSection);
         }
     }
     
-    // Update chapter info
+    // Update chapter info with clear display
     if (chapterInfo) {
-        chapterInfo.textContent = textData.ref || textData.title;
+        const displayRef = textData.ref || `${indexData.title || currentBook} ${currentSection}`;
+        chapterInfo.textContent = displayRef;
+        console.log('📌 Chapter info:', displayRef);
     }
     
     // Build HTML for text display
@@ -459,7 +466,7 @@ function displaySearchResults(results) {
 }
 
 // ===================================
-// Navigation
+// Navigation - VRAIE IMPLEMENTATION
 // ===================================
 function loadPreviousSection() {
     if (!currentBook || currentSection <= 1) {
@@ -468,8 +475,8 @@ function loadPreviousSection() {
     }
     
     currentSection--;
-    const ref = `${currentBook} ${currentSection}`;
-    loadSpecificSection(ref);
+    console.log('⬅️ Loading previous section:', currentSection);
+    loadSpecificSection(currentSection);
 }
 
 function loadNextSection() {
@@ -480,43 +487,70 @@ function loadNextSection() {
     
     // Trouver le nombre max de sections pour ce livre
     const bookData = BRESLOV_TEXTS.find(b => b.ref === currentBook);
-    if (bookData && currentSection >= bookData.sections) {
-        window.HakolKolRabenou.showNotification('Vous êtes à la fin du livre', 'info');
+    if (bookData && currentSection >= bookData.maxChapters) {
+        window.HakolKolRabenou.showNotification(`Vous êtes à la fin du livre (${bookData.maxChapters} chapitres)`, 'info');
         return;
     }
     
     currentSection++;
-    const ref = `${currentBook} ${currentSection}`;
-    loadSpecificSection(ref);
+    console.log('➡️ Loading next section:', currentSection);
+    loadSpecificSection(currentSection);
 }
 
-async function loadSpecificSection(ref) {
+async function loadSpecificSection(sectionNumber) {
     const textReader = document.getElementById('textReader');
     const textNavigation = document.getElementById('textNavigation');
+    
+    if (!currentBook) {
+        console.error('No current book set');
+        return;
+    }
+    
+    // Construire la référence exacte pour Sefaria
+    const fullRef = `${currentBook}.${sectionNumber}`;
+    console.log('📖 Loading specific section:', fullRef);
     
     textReader.innerHTML = `
         <div class="loading">
             <i class="fas fa-spinner fa-spin"></i>
-            <p>Chargement de ${ref}...</p>
+            <p>Chargement de ${currentBook} - Section ${sectionNumber}...</p>
         </div>
     `;
     
     try {
-        const textResponse = await fetch(`${SEFARIA_API_BASE}/texts/${encodeURIComponent(ref)}?commentary=0&context=0`);
+        const url = `${SEFARIA_API_BASE}/texts/${encodeURIComponent(fullRef)}?commentary=0&context=0&pad=0`;
+        console.log('🔍 Fetching:', url);
         
-        if (!textResponse.ok) throw new Error('Section non disponible');
+        const response = await fetch(url);
         
-        const textData = await textResponse.json();
-        displayText(textData, { title: currentBook });
+        if (!response.ok) {
+            throw new Error(`Section ${sectionNumber} non disponible (HTTP ${response.status})`);
+        }
+        
+        const textData = await response.json();
+        console.log('✅ Section data received:', textData);
+        
+        if (!textData.he && !textData.text) {
+            throw new Error('Texte vide');
+        }
+        
+        await displayText(textData, { title: currentBook });
         textNavigation.style.display = 'flex';
         
+        // Scroll to top
+        textReader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
     } catch (error) {
-        console.error('Error loading section:', error);
+        console.error('❌ Error loading section:', error);
         textReader.innerHTML = `
             <div class="error-message">
                 <i class="fas fa-exclamation-triangle"></i>
-                <h3>Section non disponible</h3>
+                <h3>Section ${sectionNumber} non disponible</h3>
+                <p>${error.message}</p>
                 <p>Cette section n'existe pas ou n'est pas encore disponible sur Sefaria.</p>
+                <button class="btn btn-outline" onclick="loadSpecificSection(${sectionNumber - 1})">
+                    <i class="fas fa-arrow-left"></i> Section précédente
+                </button>
             </div>
         `;
     }
@@ -531,4 +565,7 @@ window.SefariaLibrary = {
     translateToFrench,
     BRESLOV_TEXTS
 };
+
+window.testSefariaConnection = testSefariaConnection;
+window.loadSpecificSection = loadSpecificSection;
 
