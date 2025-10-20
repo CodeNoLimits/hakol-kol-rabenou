@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sefaria API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f3f4f6;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Sefaria API - Textes Breslov</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Likutei Moharan Part I, Chapitre 1</h2>
+        <button onclick="testAPI('Likutei Moharan, Part I.1', 'result1')">Tester</button>
+        <div id="result1" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Likutei Moharan Part II, Chapitre 1</h2>
+        <button onclick="testAPI('Likutei Moharan, Part II.1', 'result2')">Tester</button>
+        <div id="result2" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Sichot HaRan, Chapitre 1</h2>
+        <button onclick="testAPI('Sichot HaRan.1', 'result3')">Tester</button>
+        <div id="result3" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 4: Likutei Etzot (problématique)</h2>
+        <button onclick="testAPI('Likutei Etzot.1', 'result4')">Tester</button>
+        <div id="result4" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 5: Sipurei Maasiot, Histoire 1</h2>
+        <button onclick="testAPI('Sipurei Maasiot.1', 'result5')">Tester</button>
+        <div id="result5" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 6: Navigation - Likutei Moharan I.2 (Section 2)</h2>
+        <button onclick="testAPI('Likutei Moharan, Part I.2', 'result6')">Tester</button>
+        <div id="result6" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 7: Navigation - Likutei Moharan I.10 (Section 10)</h2>
+        <button onclick="testAPI('Likutei Moharan, Part I.10', 'result7')">Tester</button>
+        <div id="result7" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📚 Test Complet: Tous les livres Breslov</h2>
+        <button onclick="testAllBooks()">Tester Tous</button>
+        <div id="resultAll" class="result"></div>
+    </div>
+
+    <script>
+        const SEFARIA_API_BASE = 'https://www.sefaria.org/api';
+        
+        async function testAPI(ref, resultId) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.innerHTML = '⏳ Test en cours...';
+            
+            try {
+                const url = `${SEFARIA_API_BASE}/texts/${encodeURIComponent(ref)}?commentary=0&context=0`;
+                console.log('Testing:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Vérifier si on a du contenu
+                const hasHebrew = data.he && (Array.isArray(data.he) ? data.he.length > 0 : data.he !== '');
+                const hasEnglish = data.text && (Array.isArray(data.text) ? data.text.length > 0 : data.text !== '');
+                
+                if (!hasHebrew && !hasEnglish) {
+                    throw new Error('Pas de texte disponible');
+                }
+                
+                resultDiv.innerHTML = `
+                    <p class="success">✅ SUCCESS!</p>
+                    <p><strong>Référence:</strong> ${data.ref || ref}</p>
+                    <p><strong>Livre:</strong> ${data.book || 'N/A'}</p>
+                    <p><strong>Hébreu:</strong> ${hasHebrew ? '✅ Oui' : '❌ Non'}</p>
+                    <p><strong>Anglais:</strong> ${hasEnglish ? '✅ Oui' : '❌ Non'}</p>
+                    <hr>
+                    <p><strong>Extrait Hébreu:</strong></p>
+                    <pre>${Array.isArray(data.he) ? data.he[0] : data.he}</pre>
+                    <p><strong>Extrait Anglais:</strong></p>
+                    <pre>${Array.isArray(data.text) ? data.text[0] : data.text}</pre>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ ERREUR</p>
+                    <p><strong>Message:</strong> ${error.message}</p>
+                    <p><strong>Référence testée:</strong> ${ref}</p>
+                    <p>Ce livre n'existe peut-être pas sur Sefaria avec ce nom exact.</p>
+                `;
+                console.error('Error:', error);
+            }
+        }
+        
+        async function testAllBooks() {
+            const books = [
+                'Likutei Moharan, Part I.1',
+                'Likutei Moharan, Part II.1',
+                'Sichot HaRan.1',
+                'Sefer HaMidot.1',
+                'Sipurei Maasiot.1',
+                'Likutei Etzot.1',
+                'Likutei Tefilot.1',
+                'Chayei Moharan.1'
+            ];
+            
+            const resultDiv = document.getElementById('resultAll');
+            resultDiv.innerHTML = '<h3>🔄 Test en cours de tous les livres...</h3>';
+            
+            let results = '<h3>Résultats:</h3>';
+            
+            for (const book of books) {
+                results += `<p>Testing ${book}...</p>`;
+                resultDiv.innerHTML = results;
+                
+                try {
+                    const response = await fetch(`${SEFARIA_API_BASE}/texts/${encodeURIComponent(book)}?commentary=0`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const hasContent = (data.he || data.text);
+                        results += `<p class="success">✅ ${book} - OK</p>`;
+                    } else {
+                        results += `<p class="error">❌ ${book} - HTTP ${response.status}</p>`;
+                    }
+                } catch (e) {
+                    results += `<p class="error">❌ ${book} - ${e.message}</p>`;
+                }
+                
+                resultDiv.innerHTML = results;
+            }
+            
+            results += '<h3>✅ Test terminé!</h3>';
+            resultDiv.innerHTML = results;
+        }
+    </script>
+</body>
+</html>
+
