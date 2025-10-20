@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque de Textes Sacrés - Hakol Kol Rabenou</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/library.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <i class="fas fa-star-of-david"></i>
+                    <span>Hakol Kol Rabenou</span>
+                </div>
+                
+                <div class="nav-menu" id="navMenu">
+                    <a href="index.html" class="nav-link">Accueil</a>
+                    <a href="library.html" class="nav-link active">Bibliothèque</a>
+                    
+                    <div class="nav-actions">
+                        <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <div class="language-selector">
+                            <button class="lang-btn active" data-lang="fr">FR</button>
+                            <button class="lang-btn" data-lang="he">עב</button>
+                            <button class="lang-btn" data-lang="en">EN</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="mobile-toggle" id="mobileToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Library Header -->
+    <section class="library-header">
+        <div class="container">
+            <h1 data-i18n="library_title">Bibliothèque de Textes Sacrés</h1>
+            <p data-i18n="library_subtitle">Œuvres complètes du Rabbi Nachman de Breslov - Propulsé par Sefaria</p>
+        </div>
+    </section>
+
+    <!-- Search Bar -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Rechercher un texte..." data-i18n-placeholder="search_placeholder">
+                <button class="btn btn-primary" id="searchBtn" data-i18n="search_btn">Rechercher</button>
+            </div>
+            
+            <div class="translation-controls">
+                <label>
+                    <input type="checkbox" id="showHebrew" checked>
+                    <span data-i18n="show_hebrew">Afficher Hébreu</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="showEnglish" checked>
+                    <span data-i18n="show_english">Afficher Anglais</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="autoTranslateFr">
+                    <span data-i18n="auto_translate_fr">Traduction Auto FR</span>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="library-content">
+        <div class="container">
+            <div class="library-layout">
+                <!-- Sidebar with Books List -->
+                <aside class="library-sidebar">
+                    <h2 data-i18n="breslov_works">Œuvres de Breslov</h2>
+                    <div class="books-list" id="booksList">
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p data-i18n="loading_books">Chargement des livres...</p>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Text Display -->
+                <main class="text-display">
+                    <div class="text-reader" id="textReader">
+                        <div class="welcome-message">
+                            <i class="fas fa-book-open"></i>
+                            <h3 data-i18n="select_book">Sélectionnez un livre pour commencer</h3>
+                            <p data-i18n="select_book_desc">Les textes s'afficheront ici avec l'hébreu, l'anglais et la traduction française automatique</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Text Navigation -->
+                    <div class="text-navigation" id="textNavigation" style="display: none;">
+                        <button class="btn btn-outline" id="prevBtn">
+                            <i class="fas fa-chevron-left"></i>
+                            <span data-i18n="previous">Précédent</span>
+                        </button>
+                        <span class="chapter-info" id="chapterInfo"></span>
+                        <button class="btn btn-outline" id="nextBtn">
+                            <span data-i18n="next">Suivant</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-star-of-david"></i>
+                        <span>Hakol Kol Rabenou</span>
+                    </div>
+                    <p>Propulsé par <a href="https://www.sefaria.org" target="_blank">Sefaria.org</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copyright">
+                    © 2025 Hakol Kol Rabenou - Textes fournis par Sefaria
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script src="js/sefaria.js"></script>
+</body>
+</html>
+

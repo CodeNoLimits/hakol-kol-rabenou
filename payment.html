@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faire un Don - Hakol Kol Rabenou</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        .payment-page {
+            min-height: 100vh;
+            background: var(--bg-secondary);
+            padding: var(--spacing-2xl) 0;
+            margin-top: 70px;
+        }
+        
+        .payment-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-xl);
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--radius-2xl);
+        }
+        
+        .payment-header i {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .payment-header h1 {
+            color: white;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .donation-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .donation-card {
+            background: var(--bg-primary);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            border: 3px solid transparent;
+        }
+        
+        .donation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--accent-gold);
+        }
+        
+        .donation-card.selected {
+            border-color: var(--primary-blue);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .donation-card i {
+            font-size: 3rem;
+            color: var(--accent-gold);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .donation-card h3 {
+            color: var(--primary-blue);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .payment-form {
+            background: var(--bg-primary);
+            padding: var(--spacing-xl);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .amount-selection {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .amount-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .amount-btn {
+            padding: var(--spacing-md);
+            border: 2px solid var(--gray-200);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        
+        .amount-btn:hover {
+            border-color: var(--primary-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .amount-btn.selected {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+        
+        .custom-amount {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+        
+        .custom-amount input {
+            flex: 1;
+            padding: var(--spacing-md);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .payment-methods {
+            margin: var(--spacing-xl) 0;
+        }
+        
+        .payment-method {
+            background: var(--bg-secondary);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--spacing-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 3px solid transparent;
+        }
+        
+        .payment-method:hover {
+            border-color: var(--accent-gold);
+        }
+        
+        .payment-method.selected {
+            border-color: var(--primary-blue);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .payment-method-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .payment-method-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-gold);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .payment-method-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .payment-summary {
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-xl);
+            margin: var(--spacing-lg) 0;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .summary-total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding-top: var(--spacing-sm);
+            border-top: 2px solid rgba(255,255,255,0.3);
+            margin-top: var(--spacing-sm);
+        }
+        
+        .secure-badge {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: var(--spacing-md);
+        }
+        
+        .secure-badge i {
+            color: #10b981;
+            margin-right: var(--spacing-xs);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <i class="fas fa-star-of-david"></i>
+                    <span>Hakol Kol Rabenou</span>
+                </div>
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Payment Page -->
+    <section class="payment-page">
+        <div class="container payment-container">
+            <!-- Header -->
+            <div class="payment-header">
+                <i class="fas fa-hand-holding-heart"></i>
+                <h1 data-i18n="donation_title">Soutenez Notre Mission</h1>
+                <p data-i18n="donation_subtitle">Votre don aide à diffuser les enseignements du Rabbi Nachman dans le monde entier</p>
+            </div>
+
+            <!-- Donation Types -->
+            <div class="donation-types">
+                <div class="donation-card" data-type="once" onclick="selectDonationType('once')">
+                    <i class="fas fa-gift"></i>
+                    <h3 data-i18n="donation_once">Don Ponctuel</h3>
+                    <p data-i18n="donation_once_desc">Une contribution unique</p>
+                </div>
+                <div class="donation-card" data-type="monthly" onclick="selectDonationType('monthly')">
+                    <i class="fas fa-sync-alt"></i>
+                    <h3 data-i18n="donation_monthly">Don Mensuel</h3>
+                    <p data-i18n="donation_monthly_desc">Soutien récurrent</p>
+                </div>
+                <div class="donation-card" data-type="sponsor" onclick="selectDonationType('sponsor')">
+                    <i class="fas fa-award"></i>
+                    <h3 data-i18n="donation_sponsor">Parrainage</h3>
+                    <p data-i18n="donation_sponsor_desc">Sponsoriser une fonctionnalité</p>
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="payment-form">
+                <h2 data-i18n="select_amount">Sélectionnez un montant</h2>
+                
+                <!-- Amount Selection -->
+                <div class="amount-selection">
+                    <div class="amount-buttons">
+                        <button class="amount-btn" data-amount="18" onclick="selectAmount(18)">18€</button>
+                        <button class="amount-btn" data-amount="36" onclick="selectAmount(36)">36€</button>
+                        <button class="amount-btn" data-amount="54" onclick="selectAmount(54)">54€</button>
+                        <button class="amount-btn" data-amount="100" onclick="selectAmount(100)">100€</button>
+                        <button class="amount-btn" data-amount="180" onclick="selectAmount(180)">180€</button>
+                        <button class="amount-btn" data-amount="360" onclick="selectAmount(360)">360€</button>
+                    </div>
+                    <div class="custom-amount">
+                        <label for="customAmount" data-i18n="custom_amount">Montant personnalisé:</label>
+                        <input type="number" id="customAmount" min="1" placeholder="0" onchange="selectCustomAmount(this.value)">
+                        <span>€</span>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="payment-methods">
+                    <h3 data-i18n="payment_method">Méthode de paiement</h3>
+                    
+                    <div class="payment-method selected" data-method="paypal" onclick="selectPaymentMethod('paypal')">
+                        <div class="payment-method-header">
+                            <div class="payment-method-icon">
+                                <i class="fab fa-paypal"></i>
+                            </div>
+                            <div>
+                                <h4>PayPal</h4>
+                                <p data-i18n="paypal_desc">Paiement sécurisé via PayPal</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-method" data-method="card" onclick="selectPaymentMethod('card')">
+                        <div class="payment-method-header">
+                            <div class="payment-method-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div>
+                                <h4 data-i18n="card_payment">Carte bancaire</h4>
+                                <p data-i18n="card_desc">Visa, Mastercard, American Express</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-method" data-method="transfer" onclick="selectPaymentMethod('transfer')">
+                        <div class="payment-method-header">
+                            <div class="payment-method-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div>
+                                <h4 data-i18n="bank_transfer">Virement bancaire</h4>
+                                <p data-i18n="bank_desc">Pour les gros montants</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="payment-summary">
+                    <div class="summary-row">
+                        <span data-i18n="donation_type_label">Type:</span>
+                        <span id="summaryType">Don ponctuel</span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-i18n="amount_label">Montant:</span>
+                        <span id="summaryAmount">0€</span>
+                    </div>
+                    <div class="summary-row">
+                        <span data-i18n="payment_method_label">Méthode:</span>
+                        <span id="summaryMethod">PayPal</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span data-i18n="total_label">Total:</span>
+                        <span id="summaryTotal">0€</span>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="btn btn-primary btn-large" id="submitDonation" onclick="processDonation()">
+                    <i class="fas fa-heart"></i>
+                    <span data-i18n="confirm_donation">Confirmer le don</span>
+                </button>
+
+                <div class="secure-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span data-i18n="secure_payment">Paiement 100% sécurisé et crypté</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script>
+        // Payment Page State
+        let selectedType = 'once';
+        let selectedAmount = 0;
+        let selectedMethod = 'paypal';
+
+        function selectDonationType(type) {
+            selectedType = type;
+            document.querySelectorAll('.donation-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+            
+            const typeLabels = {
+                once: 'Don ponctuel',
+                monthly: 'Don mensuel',
+                sponsor: 'Parrainage'
+            };
+            document.getElementById('summaryType').textContent = typeLabels[type];
+        }
+
+        function selectAmount(amount) {
+            selectedAmount = amount;
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.querySelector(`[data-amount="${amount}"]`).classList.add('selected');
+            document.getElementById('customAmount').value = '';
+            updateSummary();
+        }
+
+        function selectCustomAmount(amount) {
+            selectedAmount = parseFloat(amount) || 0;
+            document.querySelectorAll('.amount-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            updateSummary();
+        }
+
+        function selectPaymentMethod(method) {
+            selectedMethod = method;
+            document.querySelectorAll('.payment-method').forEach(pm => {
+                pm.classList.remove('selected');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('selected');
+            
+            const methodLabels = {
+                paypal: 'PayPal',
+                card: 'Carte bancaire',
+                transfer: 'Virement bancaire'
+            };
+            document.getElementById('summaryMethod').textContent = methodLabels[method];
+        }
+
+        function updateSummary() {
+            document.getElementById('summaryAmount').textContent = selectedAmount + '€';
+            document.getElementById('summaryTotal').textContent = selectedAmount + '€';
+        }
+
+        function processDonation() {
+            if (selectedAmount === 0) {
+                window.HakolKolRabenou.showNotification('Veuillez sélectionner un montant', 'warning');
+                return;
+            }
+
+            // In production, this would redirect to actual payment gateway
+            const message = `Merci pour votre don de ${selectedAmount}€ ! Le système de paiement sera activé prochainement. Pour le moment, contactez-nous à contact@hakolkolrabenou.com`;
+            
+            window.HakolKolRabenou.showNotification(message, 'success');
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                // In production: redirect to PayPal or payment processor
+                console.log('Payment details:', {
+                    type: selectedType,
+                    amount: selectedAmount,
+                    method: selectedMethod
+                });
+            }, 1000);
+        }
+
+        // Initialize first selection
+        selectDonationType('once');
+    </script>
+</body>
+</html>
+

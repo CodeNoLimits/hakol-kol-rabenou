@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hakol Kol Rabenou - Application complète pour tous les enseignements du Rabbi Nachman de Breslov">
+    <meta name="keywords" content="Breslov, Rabbi Nachman, Torah, Judaïsme, Hakol Kol Rabenou">
+    <title>Hakol Kol Rabenou - Tous les enseignements de Rabbi Nachman</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Animate CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="logo">
+                    <i class="fas fa-star-of-david"></i>
+                    <span>Hakol Kol Rabenou</span>
+                </div>
+                
+                <div class="nav-menu" id="navMenu">
+                    <a href="#accueil" class="nav-link" data-i18n="nav_home">Accueil</a>
+                    <a href="library.html" class="nav-link" data-i18n="nav_library">Bibliothèque</a>
+                    <a href="#fonctionnalites" class="nav-link" data-i18n="nav_features">Fonctionnalités</a>
+                    <a href="#technologie" class="nav-link" data-i18n="nav_tech">Technologie</a>
+                    <a href="#timeline" class="nav-link" data-i18n="nav_timeline">Timeline</a>
+                    <a href="#equipe" class="nav-link" data-i18n="nav_team">Équipe</a>
+                    <a href="#financement" class="nav-link" data-i18n="nav_funding">Financement</a>
+                    <a href="#faq" class="nav-link" data-i18n="nav_faq">FAQ</a>
+                    
+                    <div class="nav-actions">
+                        <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <div class="language-selector">
+                            <button class="lang-btn active" data-lang="fr">FR</button>
+                            <button class="lang-btn" data-lang="he">עב</button>
+                            <button class="lang-btn" data-lang="en">EN</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="mobile-toggle" id="mobileToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="accueil" class="hero">
+        <div class="hero-background"></div>
+        <div class="container">
+            <div class="hero-content animate__animated animate__fadeIn">
+                <h1 class="hero-title" data-i18n="hero_title">
+                    Hakol Kol Rabenou
+                </h1>
+                <p class="hero-subtitle" data-i18n="hero_subtitle">
+                    Tous les enseignements de Rabbi Nachman de Breslov<br>
+                    dans une application complète
+                </p>
+                
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-number">100,000+</div>
+                        <div class="stat-label" data-i18n="stat_users">Utilisateurs visés An 1</div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-book"></i>
+                        <div class="stat-number">8+</div>
+                        <div class="stat-label" data-i18n="stat_books">Œuvres complètes</div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-broadcast-tower"></i>
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label" data-i18n="stat_radio">Radio Breslov</div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-globe"></i>
+                        <div class="stat-number">3</div>
+                        <div class="stat-label" data-i18n="stat_languages">Langues</div>
+                    </div>
+                </div>
+                
+                <div class="hero-cta">
+                    <button class="btn btn-primary btn-large" data-i18n="btn_beta">
+                        <i class="fas fa-rocket"></i>
+                        S'inscrire à la Beta
+                    </button>
+                    <button class="btn btn-outline btn-large" data-i18n="btn_learn_more">
+                        <i class="fas fa-play-circle"></i>
+                        En savoir plus
+                    </button>
+                </div>
+                
+                <div class="hero-mission" data-i18n="mission_statement">
+                    <p>
+                        <i class="fas fa-quote-left"></i>
+                        Rendre les enseignements du Rabbi Nachman de Breslov accessibles à chaque âme, 
+                        dans chaque langue, à chaque instant. Par la technologie, nous créons un pont 
+                        entre la sagesse ancestrale et la vie moderne.
+                        <i class="fas fa-quote-right"></i>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="fonctionnalites" class="section features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="features_title">Fonctionnalités Complètes</h2>
+                <p class="section-description" data-i18n="features_desc">
+                    Une plateforme unifiée pour toute la communauté Breslov mondiale
+                </p>
+            </div>
+            
+            <div class="features-grid">
+                <!-- Feature 1: Sacred Texts -->
+                <div class="feature-card" data-aos="fade-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature1_title">Bibliothèque de Textes Sacrés</h3>
+                    <p class="feature-description" data-i18n="feature1_desc">
+                        Œuvres complètes du Rabbi Nachman avec bascule instantanée Hébreu ↔ Français ↔ English
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Likutei Moharan I & II</li>
+                        <li><i class="fas fa-check"></i> Likutei Halakhot</li>
+                        <li><i class="fas fa-check"></i> Likutei Etzot & Tefilot</li>
+                        <li><i class="fas fa-check"></i> Hayei Moharan & Sichot HaRan</li>
+                        <li><i class="fas fa-check"></i> Sefer HaMidot</li>
+                        <li><i class="fas fa-check"></i> Tous les commentaires majeurs</li>
+                        <li><i class="fas fa-check"></i> Mode hors-ligne</li>
+                        <li><i class="fas fa-check"></i> Marque-pages & Notes</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2: Audio & Media -->
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-headphones"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature2_title">Audio & Médias</h3>
+                    <p class="feature-description" data-i18n="feature2_desc">
+                        Streams en direct, livres audio et bibliothèque multimédia complète
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Radio Nanah 24/7</li>
+                        <li><i class="fas fa-check"></i> Radio Breslov France</li>
+                        <li><i class="fas fa-check"></i> Sipurei Maasiot audio</li>
+                        <li><i class="fas fa-check"></i> Cours de Torah archivés</li>
+                        <li><i class="fas fa-check"></i> Clips musicaux & vidéos</li>
+                        <li><i class="fas fa-check"></i> Intégration YouTube</li>
+                        <li><i class="fas fa-check"></i> Téléchargement hors-ligne</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3: Prayer Tools -->
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-praying-hands"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature3_title">Outils de Prière</h3>
+                    <p class="feature-description" data-i18n="feature3_desc">
+                        Accompagnement quotidien pour votre pratique spirituelle
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Tikkun HaKlali complet</li>
+                        <li><i class="fas fa-check"></i> Tikkun Chatzot</li>
+                        <li><i class="fas fa-check"></i> Rappels personnalisables</li>
+                        <li><i class="fas fa-check"></i> 2 Halakhot du jour</li>
+                        <li><i class="fas fa-check"></i> Sefer HaMitzvot quotidien</li>
+                        <li><i class="fas fa-check"></i> Citation du jour</li>
+                        <li><i class="fas fa-check"></i> Parasha selon Rabbi Nachman</li>
+                        <li><i class="fas fa-check"></i> Suivi de progression</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 4: Community -->
+                <div class="feature-card" data-aos="fade-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature4_title">Communauté</h3>
+                    <p class="feature-description" data-i18n="feature4_desc">
+                        Forums séparés par genre avec filtrage automatique et entraide
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Forums séparés par genre</li>
+                        <li><i class="fas fa-check"></i> Coup de Pouce Breslov</li>
+                        <li><i class="fas fa-check"></i> Q&A entre membres</li>
+                        <li><i class="fas fa-check"></i> Partage photos/vidéos Ouman</li>
+                        <li><i class="fas fa-check"></i> Anecdotes & témoignages</li>
+                        <li><i class="fas fa-check"></i> Citations encourageantes</li>
+                        <li><i class="fas fa-check"></i> Mises à jour temps réel</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 5: Practical Resources -->
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature5_title">Ressources Pratiques</h3>
+                    <p class="feature-description" data-i18n="feature5_desc">
+                        Services de géolocalisation et calendrier des temps halakhiques
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Minyanim Breslov à proximité</li>
+                        <li><i class="fas fa-check"></i> Annonces Sichot Haverim</li>
+                        <li><i class="fas fa-check"></i> Événements locaux</li>
+                        <li><i class="fas fa-check"></i> Annuaire Rabbins & Dayanim</li>
+                        <li><i class="fas fa-check"></i> Temps halakhiques en direct</li>
+                        <li><i class="fas fa-check"></i> Calendrier Breslov</li>
+                        <li><i class="fas fa-check"></i> Guides d'étude fêtes</li>
+                        <li><i class="fas fa-check"></i> Notifications avant fêtes</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 6: Spiritual Growth -->
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature6_title">Croissance Spirituelle</h3>
+                    <p class="feature-description" data-i18n="feature6_desc">
+                        Outils personnalisés pour votre développement spirituel
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Guides Hitbodedut</li>
+                        <li><i class="fas fa-check"></i> Thèmes de méditation</li>
+                        <li><i class="fas fa-check"></i> Guidance audio</li>
+                        <li><i class="fas fa-check"></i> Évaluation de personnalité</li>
+                        <li><i class="fas fa-check"></i> Recommandations personnalisées</li>
+                        <li><i class="fas fa-check"></i> Chok LeBreslov</li>
+                        <li><i class="fas fa-check"></i> Biographies Chassidim</li>
+                        <li><i class="fas fa-check"></i> Suivi progression</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 7: Uman Connection -->
+                <div class="feature-card" data-aos="fade-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-kaaba"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature7_title">Connexion Ouman</h3>
+                    <p class="feature-description" data-i18n="feature7_desc">
+                        Restez connecté au Kever et planifiez votre voyage
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Envoi de Pan (kvitel)</li>
+                        <li><i class="fas fa-check"></i> Mises à jour en temps réel</li>
+                        <li><i class="fas fa-check"></i> Planification voyage Ouman</li>
+                        <li><i class="fas fa-check"></i> Bons plans & recommandations</li>
+                        <li><i class="fas fa-check"></i> Coordination communautaire</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 8: Donations -->
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="feature-title" data-i18n="feature8_title">Mission & Dons</h3>
+                    <p class="feature-description" data-i18n="feature8_desc">
+                        Soutenez la diffusion des enseignements du Rabbi
+                    </p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Soutenir traductions</li>
+                        <li><i class="fas fa-check"></i> Parrainer fonctionnalités</li>
+                        <li><i class="fas fa-check"></i> Dons mensuels récurrents</li>
+                        <li><i class="fas fa-check"></i> Rapports d'impact transparents</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Section -->
+    <section id="technologie" class="section technology">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="tech_title">Technologie Moderne</h2>
+                <p class="section-description" data-i18n="tech_desc">
+                    Stack technique de pointe pour une expérience utilisateur optimale
+                </p>
+            </div>
+
+            <div class="tech-platforms">
+                <div class="platform-card" data-aos="zoom-in">
+                    <i class="fab fa-apple"></i>
+                    <h3>iOS</h3>
+                    <p>App Store</p>
+                </div>
+                <div class="platform-card" data-aos="zoom-in" data-aos-delay="100">
+                    <i class="fab fa-android"></i>
+                    <h3>Android</h3>
+                    <p>Google Play</p>
+                </div>
+                <div class="platform-card" data-aos="zoom-in" data-aos-delay="200">
+                    <i class="fas fa-globe"></i>
+                    <h3>Web</h3>
+                    <p>Progressive App</p>
+                </div>
+            </div>
+
+            <div class="tech-stack">
+                <div class="stack-category" data-aos="fade-right">
+                    <h3><i class="fas fa-mobile-alt"></i> Frontend Mobile</h3>
+                    <div class="tech-badges">
+                        <span class="tech-badge">React Native 0.73+</span>
+                        <span class="tech-badge">Zustand</span>
+                        <span class="tech-badge">React Navigation 6</span>
+                        <span class="tech-badge">React Native Paper</span>
+                        <span class="tech-badge">WatermelonDB</span>
+                        <span class="tech-badge">Track Player</span>
+                    </div>
+                </div>
+
+                <div class="stack-category" data-aos="fade-left">
+                    <h3><i class="fas fa-desktop"></i> Frontend Web</h3>
+                    <div class="tech-badges">
+                        <span class="tech-badge">React 18</span>
+                        <span class="tech-badge">Vite</span>
+                        <span class="tech-badge">Tailwind CSS</span>
+                        <span class="tech-badge">shadcn/ui</span>
+                        <span class="tech-badge">Howler.js</span>
+                    </div>
+                </div>
+
+                <div class="stack-category" data-aos="fade-right">
+                    <h3><i class="fas fa-server"></i> Backend</h3>
+                    <div class="tech-badges">
+                        <span class="tech-badge">Supabase</span>
+                        <span class="tech-badge">PostgreSQL</span>
+                        <span class="tech-badge">Real-time Subscriptions</span>
+                        <span class="tech-badge">Edge Functions</span>
+                        <span class="tech-badge">Redis</span>
+                    </div>
+                </div>
+
+                <div class="stack-category" data-aos="fade-left">
+                    <h3><i class="fas fa-search"></i> Recherche & Stockage</h3>
+                    <div class="tech-badges">
+                        <span class="tech-badge">MeiliSearch</span>
+                        <span class="tech-badge">Cloudflare R2</span>
+                        <span class="tech-badge">Cloudflare CDN</span>
+                        <span class="tech-badge">HLS Streaming</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tech-features">
+                <div class="tech-feature" data-aos="flip-left">
+                    <i class="fas fa-wifi-slash"></i>
+                    <h4>Mode Hors-ligne</h4>
+                    <p>Accédez à tous vos contenus sans connexion</p>
+                </div>
+                <div class="tech-feature" data-aos="flip-left" data-aos-delay="100">
+                    <i class="fas fa-sync-alt"></i>
+                    <h4>Synchronisation</h4>
+                    <p>Vos données synchronisées sur tous appareils</p>
+                </div>
+                <div class="tech-feature" data-aos="flip-left" data-aos-delay="200">
+                    <i class="fas fa-lock"></i>
+                    <h4>Sécurisé</h4>
+                    <p>Chiffrement bout-en-bout et conformité RGPD</p>
+                </div>
+                <div class="tech-feature" data-aos="flip-left" data-aos-delay="300">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <h4>Rapide</h4>
+                    <p>Temps de chargement < 2 secondes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section id="timeline" class="section timeline-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="timeline_title">Feuille de Route</h2>
+                <p class="section-description" data-i18n="timeline_desc">
+                    Lancement prévu Q3 2026 - Développement en 4 phases
+                </p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item" data-aos="fade-up">
+                    <div class="timeline-marker">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Mois 1-2</div>
+                        <h3>Phase 1 : Fondation</h3>
+                        <p>Configuration projet, architecture, design UI/UX, schéma base de données, système d'authentification</p>
+                        <div class="timeline-deliverable">
+                            <strong>Livrable:</strong> MVP avec 3 textes principaux lisibles en Hébreu/Français
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="timeline-marker">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Mois 3-5</div>
+                        <h3>Phase 2 : Fonctionnalités Principales</h3>
+                        <p>Bibliothèque complète, recherche avancée, player audio, forums communauté, système de dons</p>
+                        <div class="timeline-deliverable">
+                            <strong>Livrable:</strong> Version beta complète avec toutes fonctionnalités
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="timeline-marker">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Mois 6-7</div>
+                        <h3>Phase 3 : Polissage & Lancement</h3>
+                        <p>Tests beta (100 utilisateurs), optimisation, conformité App Store, outils modération, lancement public</p>
+                        <div class="timeline-deliverable">
+                            <strong>Livrable:</strong> Lancement public iOS, Android & Web 🚀
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="timeline-marker">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Mois 8-12</div>
+                        <h3>Phase 4 : Croissance & Itération</h3>
+                        <p>Demandes utilisateurs, améliorations performances, langues additionnelles (Espagnol, Russe)</p>
+                        <div class="timeline-deliverable">
+                            <strong>Objectif:</strong> 10,000 utilisateurs actifs fin Année 1
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="launch-cta" data-aos="zoom-in">
+                <h3>🎯 Lancement Target: Q3 2026</h3>
+                <p>Rejoignez-nous dès maintenant pour façonner l'avenir de l'app</p>
+                <button class="btn btn-primary btn-large">
+                    <i class="fas fa-bell"></i>
+                    Me notifier du lancement
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="equipe" class="section team">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="team_title">L'Équipe</h2>
+                <p class="section-description" data-i18n="team_desc">
+                    Experts passionnés réunissant technologie et spiritualité
+                </p>
+            </div>
+
+            <div class="team-grid">
+                <div class="team-card" data-aos="fade-up">
+                    <div class="team-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Développeur Mobile</h3>
+                    <p class="team-role">React Native</p>
+                    <p class="team-description">Expert iOS/Android avec expérience apps offline-first</p>
+                    <div class="team-status">
+                        <span class="status-badge recruiting">Recrutement</span>
+                    </div>
+                </div>
+
+                <div class="team-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="team-icon">
+                        <i class="fas fa-server"></i>
+                    </div>
+                    <h3>Développeur Backend</h3>
+                    <p class="team-role">Supabase / Node.js</p>
+                    <p class="team-description">Expertise temps réel et optimisation base de données</p>
+                    <div class="team-status">
+                        <span class="status-badge recruiting">Recrutement</span>
+                    </div>
+                </div>
+
+                <div class="team-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="team-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Designer UI/UX</h3>
+                    <p class="team-role">Design Mobile</p>
+                    <p class="team-description">Principes de design modest et sensibilité religieuse</p>
+                    <div class="team-status">
+                        <span class="status-badge recruiting">Recrutement</span>
+                    </div>
+                </div>
+
+                <div class="team-card" data-aos="fade-up">
+                    <div class="team-icon">
+                        <i class="fas fa-vial"></i>
+                    </div>
+                    <h3>Ingénieur QA</h3>
+                    <p class="team-role">Tests Mobile</p>
+                    <p class="team-description">Tests manuels et automatisés multi-devices</p>
+                    <div class="team-status">
+                        <span class="status-badge recruiting">Recrutement</span>
+                    </div>
+                </div>
+
+                <div class="team-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="team-icon">
+                        <i class="fas fa-pen-fancy"></i>
+                    </div>
+                    <h3>Gestionnaire de Contenu</h3>
+                    <p class="team-role">Hébreu/Français</p>
+                    <p class="team-description">Formatage textes religieux et modération communauté</p>
+                    <div class="team-status">
+                        <span class="status-badge recruiting">Recrutement</span>
+                    </div>
+                </div>
+
+                <div class="team-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="team-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3>Chef de Projet</h3>
+                    <p class="team-role">Agile/Scrum</p>
+                    <p class="team-description">Background technique et communication stakeholders</p>
+                    <div class="team-status">
+                        <span class="status-badge recruiting">Recrutement</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-advisory">
+                <h3>Rôles Consultatifs</h3>
+                <div class="advisory-list">
+                    <div class="advisory-item">
+                        <i class="fas fa-book-reader"></i>
+                        <span>Autorité rabbinique (approbation contenu)</span>
+                    </div>
+                    <div class="advisory-item">
+                        <i class="fas fa-users-cog"></i>
+                        <span>Liaison communautaire (validation fonctionnalités)</span>
+                    </div>
+                    <div class="advisory-item">
+                        <i class="fas fa-balance-scale"></i>
+                        <span>Conseiller juridique (confidentialité, conformité religieuse)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="team-cta" data-aos="zoom-in">
+                <h3>Rejoignez Notre Mission</h3>
+                <p>Vous êtes développeur, designer ou expert passionné par les enseignements du Rabbi Nachman ?</p>
+                <button class="btn btn-primary btn-large">
+                    <i class="fas fa-envelope"></i>
+                    Postuler Maintenant
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Funding Section -->
+    <section id="financement" class="section funding">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="funding_title">Financement Transparent</h2>
+                <p class="section-description" data-i18n="funding_desc">
+                    Budget détaillé et options de contribution
+                </p>
+            </div>
+
+            <div class="funding-overview">
+                <div class="funding-card primary" data-aos="zoom-in">
+                    <h3>Budget Développement</h3>
+                    <div class="funding-amount">84,000€</div>
+                    <p>7 mois de développement complet</p>
+                    <ul>
+                        <li>Développement Mobile: 35,000€</li>
+                        <li>Développement Backend: 25,000€</li>
+                        <li>Design UI/UX: 8,000€</li>
+                        <li>Tests QA: 6,000€</li>
+                        <li>Gestion Projet: 10,000€</li>
+                    </ul>
+                </div>
+
+                <div class="funding-card secondary" data-aos="zoom-in" data-aos-delay="100">
+                    <h3>Infrastructure An 1</h3>
+                    <div class="funding-amount">2,772€</div>
+                    <p>Services cloud et outils</p>
+                    <ul>
+                        <li>Supabase Pro: 300€/an</li>
+                        <li>Cloudflare R2: 600€/an</li>
+                        <li>MeiliSearch: 1,200€/an</li>
+                        <li>Monitoring: 312€/an</li>
+                        <li>Analytics: 300€/an</li>
+                    </ul>
+                </div>
+
+                <div class="funding-card tertiary" data-aos="zoom-in" data-aos-delay="200">
+                    <h3>Coûts Récurrents</h3>
+                    <div class="funding-amount">28,772€/an</div>
+                    <p>Maintenance post-lancement</p>
+                    <ul>
+                        <li>Infrastructure: 2,772€</li>
+                        <li>Maintenance (20%): 12,000€</li>
+                        <li>Gestion Contenu: 6,000€</li>
+                        <li>Modération: 8,000€</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="funding-options">
+                <h3>Options de Contribution</h3>
+                <div class="contribution-grid">
+                    <div class="contribution-card" data-aos="fade-up">
+                        <div class="contribution-icon">
+                            <i class="fas fa-hand-holding-usd"></i>
+                        </div>
+                        <h4>Don Ponctuel</h4>
+                        <p>Soutenez le développement avec un don unique</p>
+                        <button class="btn btn-outline">Faire un don</button>
+                    </div>
+
+                    <div class="contribution-card featured" data-aos="fade-up" data-aos-delay="100">
+                        <div class="contribution-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <h4>Don Mensuel</h4>
+                        <p>Soutien récurrent pour la maintenance</p>
+                        <div class="contribution-amounts">
+                            <span>5€</span>
+                            <span>10€</span>
+                            <span>25€</span>
+                            <span>50€</span>
+                        </div>
+                        <button class="btn btn-primary">S'engager</button>
+                    </div>
+
+                    <div class="contribution-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="contribution-icon">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h4>Parrainage</h4>
+                        <p>Sponsorisez une fonctionnalité spécifique</p>
+                        <button class="btn btn-outline">En savoir plus</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="funding-impact" data-aos="fade-up">
+                <h3>Impact de Votre Don</h3>
+                <div class="impact-grid">
+                    <div class="impact-item">
+                        <strong>50€</strong>
+                        <p>Traduction d'un texte complet</p>
+                    </div>
+                    <div class="impact-item">
+                        <strong>100€</strong>
+                        <p>Hébergement serveur 1 mois</p>
+                    </div>
+                    <div class="impact-item">
+                        <strong>500€</strong>
+                        <p>Développement fonctionnalité</p>
+                    </div>
+                    <div class="impact-item">
+                        <strong>1000€</strong>
+                        <p>Infrastructure complète 3 mois</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="funding-transparency">
+                <i class="fas fa-chart-pie"></i>
+                <h3>Transparence Totale</h3>
+                <p>Rapports financiers trimestriels détaillant l'utilisation de chaque euro</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Metrics Section -->
+    <section class="section metrics">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="metrics_title">Indicateurs de Succès</h2>
+                <p class="section-description" data-i18n="metrics_desc">
+                    Objectifs mesurables et KPIs de performance
+                </p>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card" data-aos="flip-up">
+                    <div class="metric-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Croissance Utilisateurs</h3>
+                    <div class="metric-timeline">
+                        <div class="metric-item">
+                            <span class="metric-label">Beta (M6)</span>
+                            <span class="metric-value">100</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Lancement (M7)</span>
+                            <span class="metric-value">1,000</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">M9</span>
+                            <span class="metric-value">5,000</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">An 1 (M12)</span>
+                            <span class="metric-value">10,000</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">An 2</span>
+                            <span class="metric-value">50,000</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">An 3</span>
+                            <span class="metric-value">100,000+</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="flip-up" data-aos-delay="100">
+                    <div class="metric-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h3>Engagement</h3>
+                    <div class="metric-stats">
+                        <div class="stat">
+                            <span class="stat-value">20%</span>
+                            <span class="stat-label">DAU/MAU</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">15+ min</span>
+                            <span class="stat-label">Session moyenne</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">40%</span>
+                            <span class="stat-label">Rétention hebdo</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">25%</span>
+                            <span class="stat-label">Rétention mensuelle</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="flip-up" data-aos-delay="200">
+                    <div class="metric-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h3>Performance Technique</h3>
+                    <div class="metric-stats">
+                        <div class="stat">
+                            <span class="stat-value">&lt;0.5%</span>
+                            <span class="stat-label">Taux crash</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">&lt;2s</span>
+                            <span class="stat-label">Temps chargement</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">100%</span>
+                            <span class="stat-label">Fonctions offline</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">99.5%</span>
+                            <span class="stat-label">Uptime streaming</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="flip-up">
+                    <div class="metric-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Communauté</h3>
+                    <div class="metric-stats">
+                        <div class="stat">
+                            <span class="stat-value">50+</span>
+                            <span class="stat-label">Posts forum/semaine</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">10+</span>
+                            <span class="stat-label">Pan quotidiens</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">100+</span>
+                            <span class="stat-label">Participants événements</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card" data-aos="flip-up" data-aos-delay="100">
+                    <div class="metric-icon">
+                        <i class="fas fa-donate"></i>
+                    </div>
+                    <h3>Financier</h3>
+                    <div class="metric-stats">
+                        <div class="stat">
+                            <span class="stat-value">5,000€</span>
+                            <span class="stat-label">Dons mensuels M12</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">5%</span>
+                            <span class="stat-label">Taux conversion</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">10€</span>
+                            <span class="stat-label">Don moyen</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- YouTube Videos Section -->
+    <section id="videos" class="section videos">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="videos_title">Vidéos & Enseignements</h2>
+                <p class="section-description" data-i18n="videos_desc">
+                    Accédez à des milliers d'enseignements et de chansons sur YouTube
+                </p>
+            </div>
+
+            <div class="youtube-channels">
+                <!-- Channel 1: Likutei Moharan en Français -->
+                <div class="youtube-card" data-aos="fade-up">
+                    <div class="youtube-preview">
+                        <iframe 
+                            src="https://www.youtube.com/embed/videoseries?list=UULFlikoutemoharan9678" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="youtube-info">
+                        <h3 data-i18n="channel1_title">Likutei Moharan en Français</h3>
+                        <p data-i18n="channel1_desc">
+                            Tous les enseignements du Likutei Moharan traduits et expliqués en français
+                        </p>
+                        <a href="https://www.youtube.com/@likoutemoharan9678" target="_blank" class="btn btn-primary">
+                            <i class="fab fa-youtube"></i>
+                            <span data-i18n="visit_channel">Visiter la chaîne</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Channel 2: DJ Nanach Tselahya -->
+                <div class="youtube-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="youtube-preview">
+                        <iframe 
+                            src="https://www.youtube.com/embed/videoseries?list=UULFDJNanachTselahya" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="youtube-info">
+                        <h3 data-i18n="channel2_title">Chansons de Breslov - DJ Nanach</h3>
+                        <p data-i18n="channel2_desc">
+                            Collection de chansons et mélodies inspirées par Rabbi Nachman
+                        </p>
+                        <a href="https://www.youtube.com/@DJNanachTselahya/playlists" target="_blank" class="btn btn-primary">
+                            <i class="fab fa-youtube"></i>
+                            <span data-i18n="visit_channel">Visiter la chaîne</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Channel 3: Likutei Moharan en Chanson -->
+                <div class="youtube-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="youtube-preview">
+                        <iframe 
+                            src="https://www.youtube.com/embed/videoseries?list=UULFlikoutemoharanenchanson" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="youtube-info">
+                        <h3 data-i18n="channel3_title">Likutei Moharan en Chanson</h3>
+                        <p data-i18n="channel3_desc">
+                            Les enseignements du Rabbi Nachman mis en musique
+                        </p>
+                        <a href="https://youtube.com/@likoutemoharanenchanson?si=k32PNrmLOn7zh9EF" target="_blank" class="btn btn-primary">
+                            <i class="fab fa-youtube"></i>
+                            <span data-i18n="visit_channel">Visiter la chaîne</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="section faq">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title" data-i18n="faq_title">Questions Fréquentes</h2>
+                <p class="section-description" data-i18n="faq_desc">
+                    Tout ce que vous devez savoir sur Hakol Kol Rabenou
+                </p>
+            </div>
+
+            <div class="faq-list">
+                <div class="faq-item" data-aos="fade-up">
+                    <div class="faq-question">
+                        <h3>Quand l'application sera-t-elle disponible ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Le lancement public est prévu pour Q3 2026 (juillet-septembre). Une version beta sera disponible dès le mois 6 (juin 2026) pour 100 testeurs sélectionnés. Inscrivez-vous à notre liste d'attente pour être notifié en priorité.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="50">
+                    <div class="faq-question">
+                        <h3>L'application sera-t-elle gratuite ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui, l'application sera 100% gratuite pour tous les utilisateurs. Notre mission est de rendre les enseignements du Rabbi Nachman accessibles à tous. Le projet est financé par des dons volontaires de la communauté.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="100">
+                    <div class="faq-question">
+                        <h3>Puis-je utiliser l'application hors-ligne ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolument ! L'application est conçue en "offline-first". Vous pourrez télécharger tous les textes, audios et contenus pour y accéder sans connexion internet. Seules les fonctionnalités communautaires et les streams en direct nécessitent une connexion.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="150">
+                    <div class="faq-question">
+                        <h3>Quelles langues sont supportées ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Au lancement : Hébreu, Français et Anglais avec bascule instantanée. Phonétique disponible pour faciliter la lecture. Après le lancement (An 2), nous ajouterons l'Espagnol et le Russe selon la demande communautaire.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="200">
+                    <div class="faq-question">
+                        <h3>Comment fonctionne la séparation par genre ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Lors de l'inscription, vous indiquez votre genre. Les forums et contenus communautaires sont automatiquement filtrés pour respecter les principes de modestie. Des contrôles techniques et une modération active garantissent le respect de cette séparation.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="250">
+                    <div class="faq-question">
+                        <h3>Puis-je contribuer au projet ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Oui ! Plusieurs moyens : 1) Dons financiers (ponctuels ou mensuels), 2) Contribution technique (développeurs, designers), 3) Traductions et révisions de textes, 4) Tests beta, 5) Partage avec votre communauté. Chaque contribution compte !</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="300">
+                    <div class="faq-question">
+                        <h3>Comment envoyer un Pan à Ouman ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Via la section "Connexion Ouman", vous pourrez rédiger votre Pan (demande de prière) qui sera déposé au Kever du Rabbi Nachman par des messagers sur place. Vous recevrez une notification avec photo de confirmation une fois le Pan déposé, comme le système de Chabad.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="350">
+                    <div class="faq-question">
+                        <h3>Mes données sont-elles protégées ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>La confidentialité est notre priorité. Conformité RGPD totale, chiffrement bout-en-bout, données stockées en Europe, aucune vente de données à des tiers. Vous contrôlez vos données et pouvez les exporter ou supprimer à tout moment.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="400">
+                    <div class="faq-question">
+                        <h3>Qui valide le contenu rabbinique ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Tous les textes et traductions sont supervisés par une autorité rabbinique Breslov reconnue. Un comité consultatif de Rabbanim valide les contenus sensibles et les nouvelles fonctionnalités pour garantir la fidélité aux enseignements authentiques.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="450">
+                    <div class="faq-question">
+                        <h3>Puis-je suggérer des fonctionnalités ?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolument ! La communauté est au cœur du projet. Vous pourrez soumettre vos idées via l'app, voter pour les suggestions d'autres membres, et participer aux décisions sur les priorités de développement. Votre voix compte !</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-star-of-david"></i>
+                        <span>Hakol Kol Rabenou</span>
+                    </div>
+                    <p class="footer-tagline">
+                        Rendre les enseignements du Rabbi Nachman accessibles à chaque âme
+                    </p>
+                    <div class="footer-mission">
+                        <strong>Na Nach Nachma Nachman Meuman</strong> 🙏
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Navigation</h4>
+                    <ul class="footer-links">
+                        <li><a href="#accueil">Accueil</a></li>
+                        <li><a href="#fonctionnalites">Fonctionnalités</a></li>
+                        <li><a href="#technologie">Technologie</a></li>
+                        <li><a href="#timeline">Timeline</a></li>
+                        <li><a href="#equipe">Équipe</a></li>
+                        <li><a href="#financement">Financement</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Ressources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Breslev.fr</a></li>
+                        <li><a href="#">Radio Nanah</a></li>
+                        <li><a href="#">Radio Breslov France</a></li>
+                        <li><a href="#">Nahmanmeouman YouTube</a></li>
+                        <li><a href="#">Documentation API</a></li>
+                        <li><a href="#">Communauté GitHub</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:contact@hakolkolrabenou.com">contact@hakolkolrabenou.com</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user"></i>
+                            <span>Chef de Projet: Dan Levy</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-building"></i>
+                            <span>Partenaire: Tetra Brahm</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="footer-social">
+                        <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-section newsletter">
+                    <h4>Newsletter</h4>
+                    <p>Restez informé de nos avancées</p>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Votre email" required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-legal">
+                    <a href="#">Mentions Légales</a>
+                    <span>•</span>
+                    <a href="#">Politique de Confidentialité</a>
+                    <span>•</span>
+                    <a href="#">CGU</a>
+                    <span>•</span>
+                    <a href="#">Cookies</a>
+                </div>
+                <div class="footer-copyright">
+                    © 2025 Hakol Kol Rabenou. Tous droits réservés. Version 1.0
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" id="scrollTop">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Beta Signup Modal -->
+    <div class="modal" id="betaModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeBetaModal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-header">
+                <i class="fas fa-rocket"></i>
+                <h2 data-i18n="beta_title">Inscription à la Beta</h2>
+                <p data-i18n="beta_subtitle">Soyez parmi les premiers à tester l'application</p>
+            </div>
+            <form id="betaForm" class="beta-form">
+                <div class="form-group">
+                    <label for="betaName" data-i18n="form_name">Nom complet</label>
+                    <input type="text" id="betaName" required placeholder="Votre nom" data-i18n-placeholder="form_name_placeholder">
+                </div>
+                <div class="form-group">
+                    <label for="betaEmail" data-i18n="form_email">Email</label>
+                    <input type="email" id="betaEmail" required placeholder="votre@email.com" data-i18n-placeholder="form_email_placeholder">
+                </div>
+                <div class="form-group">
+                    <label for="betaPhone" data-i18n="form_phone">Téléphone (optionnel)</label>
+                    <input type="tel" id="betaPhone" placeholder="+33 6 00 00 00 00" data-i18n-placeholder="form_phone_placeholder">
+                </div>
+                <div class="form-group">
+                    <label for="betaInterest" data-i18n="form_interest">Qu'est-ce qui vous intéresse le plus ?</label>
+                    <select id="betaInterest" required>
+                        <option value="" data-i18n="form_select">Sélectionner...</option>
+                        <option value="texts" data-i18n="interest_texts">Bibliothèque de textes</option>
+                        <option value="audio" data-i18n="interest_audio">Audio & Radio</option>
+                        <option value="prayer" data-i18n="interest_prayer">Outils de prière</option>
+                        <option value="community" data-i18n="interest_community">Communauté</option>
+                        <option value="all" data-i18n="interest_all">Tout !</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="betaMessage" data-i18n="form_message">Message (optionnel)</label>
+                    <textarea id="betaMessage" rows="3" placeholder="Dites-nous pourquoi vous voulez rejoindre..." data-i18n-placeholder="form_message_placeholder"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-large">
+                    <i class="fas fa-paper-plane"></i>
+                    <span data-i18n="form_submit">Envoyer ma demande</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AOS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>
