@@ -3,7 +3,11 @@
 // ===================================
 
 const SEFARIA_API_BASE = 'https://www.sefaria.org/api';
+const SEFARIA_WEB_BASE = 'https://www.sefaria.org';
 const LIBRE_TRANSLATE_API = 'https://libretranslate.de/translate'; // Free API
+
+// Cache pour les noms de livres découverts
+let discoveredBookNames = {};
 
 // VRAIS NOMS des textes Breslov sur Sefaria API (vérifiés et testés)
 const BRESLOV_TEXTS = [
@@ -117,7 +121,109 @@ function loadBooksList() {
 }
 
 // ===================================
-// Load Book from Sefaria API - VRAIE IMPLEMENTATION
+// Découvrir le vrai nom d'un livre sur Sefaria
+// ===================================
+async function discoverBookName(searchTerm) {
+    console.log('🔍 Découverte du nom du livre:', searchTerm);
+    
+    try {
+        // Essayer d'abord avec l'API de recherche
+        const searchUrl = `${SEFARIA_API_BASE}/name/${encodeURIComponent(searchTerm)}`;
+        const response = await fetch(searchUrl);
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.is_ref && data.url) {
+                const bookName = data.url.replace('/api/texts/', '').split('.')[0];
+                console.log('✅ Nom découvert via API:', bookName);
+                discoveredBookNames[searchTerm] = bookName;
+                return bookName;
+            }
+        }
+        
+        // Fallback: chercher dans l'index complet
+        const indexUrl = `${SEFARIA_API_BASE}/index/`;
+        const indexResponse = await fetch(indexUrl);
+        if (indexResponse.ok) {
+            const index = await indexResponse.json();
+            // Chercher dans les titres
+            for (const category of Object.values(index)) {
+                if (Array.isArray(category)) {
+                    for (const book of category) {
+                        if (book.title && book.title.toLowerCase().includes(searchTerm.toLowerCase())) {
+                            console.log('✅ Nom trouvé dans l\'index:', book.title);
+                            discoveredBookNames[searchTerm] = book.title;
+                            return book.title;
+                        }
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Erreur découverte nom:', e);
+    }
+    
+    return null;
+}
+
+// ===================================
+// Fallback: Scraping du site Sefaria
+// ===================================
+async function loadBookFromWeb(ref, section = 1) {
+    console.log('🕷️ FALLBACK: Scraping Sefaria web pour:', ref);
+    
+    try {
+        // Construire l'URL web de Sefaria
+        const webRef = ref.replace(/ /g, '_').replace(/,/g, '');
+        const webUrl = `${SEFARIA_WEB_BASE}/${webRef}.${section}?lang=bi`;
+        
+        console.log('🌐 URL web:', webUrl);
+        
+        // Fetch la page HTML
+        const response = await fetch(webUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const html = await response.text();
+        
+        // Parser le HTML pour extraire le texte
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Trouver les textes hébreux et anglais
+        const hebrewElements = doc.querySelectorAll('.he, [lang="he"]');
+        const englishElements = doc.querySelectorAll('.en, [lang="en"]');
+        
+        const hebrewText = Array.from(hebrewElements).map(el => el.textContent.trim()).filter(t => t.length > 20);
+        const englishText = Array.from(englishElements).map(el => el.textContent.trim()).filter(t => t.length > 20);
+        
+        if (hebrewText.length === 0 && englishText.length === 0) {
+            throw new Error('Aucun texte trouvé sur la page');
+        }
+        
+        console.log('✅ Texte extrait du web:', {
+            hebrew: hebrewText.length,
+            english: englishText.length
+        });
+        
+        // Créer un objet textData compatible
+        return {
+            he: hebrewText,
+            text: englishText,
+            ref: `${ref} ${section}`,
+            book: ref,
+            sourceMethod: 'web-scraping'
+        };
+        
+    } catch (error) {
+        console.error('❌ Erreur web scraping:', error);
+        return null;
+    }
+}
+
+// ===================================
+// Load Book from Sefaria - AVEC FALLBACK
 // ===================================
 async function loadBook(ref) {
     console.log('📖 Loading book:', ref);
@@ -134,41 +240,80 @@ async function loadBook(ref) {
     `;
     
     try {
-        // VRAI appel API Sefaria avec le nom exact
-        const fullRef = `${ref}.1`; // Charger chapitre 1
-        console.log('🔍 API Call:', `${SEFARIA_API_BASE}/texts/${encodeURIComponent(fullRef)}`);
+        // Tentative 1: API Sefaria
+        const fullRef = `${ref}.1`;
+        console.log('🔍 Tentative 1 - API:', `${SEFARIA_API_BASE}/texts/${encodeURIComponent(fullRef)}`);
         
         const response = await fetch(`${SEFARIA_API_BASE}/texts/${encodeURIComponent(fullRef)}?commentary=0&context=0&pad=0`);
         
-        if (!response.ok) {
-            throw new Error(`Sefaria API error: ${response.status}`);
+        if (response.ok) {
+            const textData = await response.json();
+            
+            if (textData.he || textData.text) {
+                console.log('✅ Succès via API');
+                currentBook = ref;
+                currentSection = 1;
+                await displayText(textData, { title: ref });
+                textNavigation.style.display = 'flex';
+                return;
+            }
         }
         
-        const textData = await response.json();
-        console.log('✅ Data received:', textData);
+        // Tentative 2: Découvrir le vrai nom
+        console.log('⚠️ API échouée, tentative découverte du nom...');
+        textReader.innerHTML = `
+            <div class="loading">
+                <i class="fas fa-search fa-spin"></i>
+                <p>Recherche du vrai nom sur Sefaria...</p>
+            </div>
+        `;
         
-        if (!textData.he && !textData.text) {
-            throw new Error('Aucun texte disponible');
+        const discoveredName = await discoverBookName(ref);
+        if (discoveredName && discoveredName !== ref) {
+            console.log('🔄 Réessai avec nom découvert:', discoveredName);
+            return loadBook(discoveredName); // Récursion avec le bon nom
         }
         
-        // Save current book state
-        currentBook = ref;
-        currentSection = 1;
+        // Tentative 3: Fallback web scraping
+        console.log('⚠️ Découverte échouée, tentative web scraping...');
+        textReader.innerHTML = `
+            <div class="loading">
+                <i class="fas fa-spider fa-spin"></i>
+                <p>Extraction du texte depuis Sefaria.org...</p>
+                <p>Fallback mode activé</p>
+            </div>
+        `;
         
-        // Display the text
-        await displayText(textData, { title: ref });
+        const webData = await loadBookFromWeb(ref, 1);
+        if (webData) {
+            console.log('✅ Succès via web scraping');
+            currentBook = ref;
+            currentSection = 1;
+            await displayText(webData, { title: ref });
+            textNavigation.style.display = 'flex';
+            window.HakolKolRabenou.showNotification('📡 Texte chargé via web scraping (fallback)', 'info');
+            return;
+        }
         
-        textNavigation.style.display = 'flex';
+        // Échec total
+        throw new Error('Toutes les méthodes ont échoué');
         
     } catch (error) {
-        console.error('❌ Error loading book:', error);
+        console.error('❌ Erreur complète:', error);
         textReader.innerHTML = `
             <div class="error-message">
                 <i class="fas fa-exclamation-triangle"></i>
                 <h3>Erreur de chargement</h3>
-                <p>${error.message}</p>
                 <p><strong>Livre demandé:</strong> ${ref}</p>
-                <p>Ce texte n'est peut-être pas disponible sur Sefaria avec ce nom exact.</p>
+                <p>${error.message}</p>
+                <hr>
+                <p><strong>Méthodes tentées:</strong></p>
+                <ul style="text-align: left;">
+                    <li>✗ API Sefaria</li>
+                    <li>✗ Découverte automatique du nom</li>
+                    <li>✗ Web scraping de Sefaria.org</li>
+                </ul>
+                <p>Ce texte n'est peut-être pas disponible sur Sefaria.</p>
                 <button class="btn btn-primary" onclick="testSefariaConnection('${ref}')">Tester la connexion</button>
             </div>
         `;
@@ -292,6 +437,17 @@ async function buildVerseHTML(verseNum, hebrew, english) {
 // Translation to French
 // ===================================
 async function translateToFrench(text) {
+    // Convertir en string si nécessaire
+    if (typeof text !== 'string') {
+        if (Array.isArray(text)) {
+            text = text.join(' ');
+        } else if (text && typeof text === 'object') {
+            text = JSON.stringify(text);
+        } else {
+            return '';
+        }
+    }
+    
     if (!text || text.trim() === '') return '';
     
     // Limite de 500 caractères par appel pour éviter les timeouts
