@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Traduction de Textes Longs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .result {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #10b981;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result.show {
+            display: block;
+        }
+        
+        .result h3 {
+            color: #10b981;
+            margin-bottom: 15px;
+        }
+        
+        .result-text {
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .logs {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            background: #fef3c7;
+            border-radius: 8px;
+            margin: 20px 0;
+            color: #92400e;
+            font-weight: bold;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .example {
+            background: #e0e7ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .char-count {
+            text-align: right;
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Test - Traduction de Textes Longs</h1>
+        <p class="subtitle">Système intelligent de découpage et traduction par morceaux</p>
+        
+        <!-- Section Input -->
+        <div class="section">
+            <h2>📝 Texte à traduire (Anglais → Français)</h2>
+            
+            <div class="example">
+                <div class="example-title">💡 Exemples à tester:</div>
+                <button class="btn btn-secondary" onclick="loadExample('short')">Texte court (300 chars)</button>
+                <button class="btn btn-secondary" onclick="loadExample('medium')">Texte moyen (800 chars)</button>
+                <button class="btn btn-secondary" onclick="loadExample('long')">Texte long (2000 chars)</button>
+                <button class="btn btn-secondary" onclick="loadExample('verylong')">Texte très long (5000 chars)</button>
+            </div>
+            
+            <textarea id="inputText" placeholder="Collez votre texte anglais ici..."></textarea>
+            <div class="char-count" id="charCount">0 caractères</div>
+            
+            <button class="btn btn-primary" onclick="translateText()">
+                🚀 Traduire en Français
+            </button>
+            <button class="btn btn-success" onclick="showChunks()">
+                ✂️ Voir le découpage en morceaux
+            </button>
+        </div>
+        
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            Traduction en cours...
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="statChunks">0</div>
+                <div class="stat-label">Morceaux</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statSuccess">0</div>
+                <div class="stat-label">Traduits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statTime">0s</div>
+                <div class="stat-label">Temps</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statChars">0</div>
+                <div class="stat-label">Caractères</div>
+            </div>
+        </div>
+        
+        <!-- Result -->
+        <div class="result" id="result">
+            <h3>✅ Traduction française:</h3>
+            <div class="result-text" id="resultText"></div>
+        </div>
+        
+        <!-- Logs -->
+        <div class="section">
+            <h2>📊 Logs en temps réel</h2>
+            <div class="logs" id="logs">
+                <div class="log-entry">🎬 Prêt à traduire...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/sefaria.js"></script>
+    <script>
+        // Exemples de textes
+        const EXAMPLES = {
+            short: `Rabbi Nachman teaches that the main thing is to be happy. Joy pushes aside all obstacles and sadness. Always remember to serve God with happiness and enthusiasm.`,
+            
+            medium: `Rabbi Nachman teaches that the main thing is to be happy. Joy pushes aside all obstacles and sadness. Even if you face difficulties, know that everything is for the best. The essence of serving God is with great joy and a good heart. Never let sadness overtake you. There is always hope and light even in the darkest moments. Keep faith strong and remember that God is always with you. Through prayer and trust, you can overcome any challenge. The power of joy is immeasurable and can transform your entire life.`,
+            
+            long: `Rabbi Nachman teaches that the main thing is to be happy and to strengthen yourself always with joy. Joy pushes aside all obstacles, sadness, and difficulties that may come your way. Even when facing the greatest challenges, remember that everything is orchestrated by Divine Providence for your ultimate good. The essence of serving the Creator is with tremendous joy, happiness, and a good heart. Never allow sadness or depression to overtake you, for these are obstacles placed by negative forces to distance you from your spiritual path. There is always hope and light even in the darkest moments of life. Keep your faith strong and remember that the Almighty is always with you, guiding you through every step. Through sincere prayer, genuine faith, and unwavering trust in God, you can overcome any challenge or difficulty that life presents. The power of joy is truly immeasurable and has the ability to transform your entire life, bringing blessings, success, and true fulfillment. Rabbi Nachman also emphasizes the importance of speaking to God in your own words, expressing your deepest feelings and desires. This personal conversation with the Creator is the foundation of spiritual growth and connection. Through simplicity, sincerity, and joy, you can reach the highest spiritual levels and experience the divine presence in your daily life.`,
+            
+            verylong: `Rabbi Nachman of Breslov teaches that the main thing in life is to be happy and to strengthen yourself always with tremendous joy and enthusiasm. Joy has the power to push aside all obstacles, sadness, depression, and difficulties that may come your way in this physical world. Even when facing the greatest challenges, the most difficult trials, or seemingly impossible situations, always remember that everything that happens is orchestrated by Divine Providence for your ultimate good and spiritual elevation. The essence of serving the Creator is with tremendous joy, overwhelming happiness, and a genuinely good heart filled with love and devotion. Never allow sadness, melancholy, or depression to overtake you or control your emotions, for these negative feelings are obstacles carefully placed by dark spiritual forces whose sole purpose is to distance you from your spiritual path and connection with God. There is always hope, light, and salvation even in the darkest, most difficult moments of life when everything seems lost. Keep your faith strong, unwavering, and unshakeable, and remember that the Almighty is always with you, constantly guiding you through every single step of your journey in this world. Through sincere prayer, genuine faith, complete trust in God, and constant conversation with the Creator, you can overcome any challenge, difficulty, or obstacle that life presents to you. The power of joy is truly immeasurable, infinite, and boundless, having the ability to completely transform your entire life from darkness to light, bringing abundant blessings, tremendous success, and true fulfillment in all areas of your existence. Rabbi Nachman also emphasizes the critical importance of speaking to God in your own words, in your native language, expressing your deepest feelings, thoughts, desires, hopes, and fears without any barriers or inhibitions. This personal, intimate conversation with the Creator is the very foundation of spiritual growth, development, and deep connection with the divine. Through simplicity, complete sincerity, authentic joy, and constant practice, you can reach the highest spiritual levels imaginable and experience the divine presence, the Shechinah, in every aspect of your daily life. The teachings of Rabbi Nachman illuminate the path to true happiness, spiritual fulfillment, and connection with God. His words continue to inspire millions of people around the world, helping them find meaning, purpose, and joy in their lives. Remember that every moment is precious, every breath is a gift, and every day is an opportunity to come closer to your true purpose and destiny. Never give up, never lose hope, and always remember that with God, all things are possible. The journey may be long and challenging, but the destination is worth every step. Keep moving forward with faith, joy, and determination, knowing that you are never alone on this sacred path.`
+        };
+        
+        // Update char count
+        document.getElementById('inputText').addEventListener('input', function() {
+            const count = this.value.length;
+            document.getElementById('charCount').textContent = `${count} caractères`;
+        });
+        
+        // Load example
+        function loadExample(type) {
+            document.getElementById('inputText').value = EXAMPLES[type];
+            document.getElementById('charCount').textContent = `${EXAMPLES[type].length} caractères`;
+            addLog(`📝 Exemple "${type}" chargé (${EXAMPLES[type].length} caractères)`);
+        }
+        
+        // Add log entry
+        function addLog(message) {
+            const logsDiv = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        // Show chunks
+        function showChunks() {
+            const text = document.getElementById('inputText').value;
+            if (!text) {
+                alert('Veuillez entrer un texte d\'abord!');
+                return;
+            }
+            
+            addLog('✂️ Découpage du texte...');
+            const chunks = splitTextIntoChunks(text, 450);
+            addLog(`✅ ${chunks.length} morceaux créés`);
+            
+            chunks.forEach((chunk, i) => {
+                addLog(`   Morceau ${i+1}/${chunks.length}: ${chunk.length} caractères`);
+            });
+            
+            document.getElementById('stats').style.display = 'grid';
+            document.getElementById('statChunks').textContent = chunks.length;
+            document.getElementById('statChars').textContent = text.length;
+        }
+        
+        // Translate text
+        async function translateText() {
+            const text = document.getElementById('inputText').value;
+            if (!text) {
+                alert('Veuillez entrer un texte d\'abord!');
+                return;
+            }
+            
+            // Reset
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('stats').style.display = 'none';
+            
+            addLog('🚀 Démarrage de la traduction...');
+            const startTime = Date.now();
+            
+            try {
+                const translated = await translateToFrench(text);
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(1);
+                
+                // Show result
+                document.getElementById('resultText').textContent = translated;
+                document.getElementById('result').classList.add('show');
+                document.getElementById('loading').classList.remove('show');
+                
+                // Show stats
+                document.getElementById('stats').style.display = 'grid';
+                document.getElementById('statTime').textContent = `${duration}s`;
+                
+                addLog(`✅ Traduction terminée en ${duration}s`);
+                addLog(`📏 ${translated.length} caractères traduits`);
+                
+            } catch (error) {
+                document.getElementById('loading').classList.remove('show');
+                addLog(`❌ Erreur: ${error.message}`);
+                alert('Erreur lors de la traduction. Voir les logs.');
+            }
+        }
+        
+        // Override console.log to show in logs
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const message = args.join(' ');
+            if (message.includes('📏') || message.includes('✂️') || message.includes('🔄') || message.includes('✅')) {
+                addLog(message);
+            }
+        };
+    </script>
+</body>
+</html>
+
