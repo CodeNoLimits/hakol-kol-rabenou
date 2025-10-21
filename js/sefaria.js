@@ -33,9 +33,9 @@ const BRESLOV_TEXTS = [
         maxChapters: 326
     },
     {
-        name: 'Sefer_HaMidot',
+        name: 'Sefer HaMidot',
         hebrewName: 'ספר המדות',
-        ref: 'Sefer_HaMidot',
+        ref: 'Sefer HaMidot',
         description: 'Le Livre des Traits de Caractère',
         maxChapters: 543
     },
@@ -47,9 +47,9 @@ const BRESLOV_TEXTS = [
         maxChapters: 13
     },
     {
-        name: 'Likkutei_Etzot',
+        name: 'Likutei Etzot',
         hebrewName: 'ליקוטי עצות',
-        ref: 'Likkutei_Etzot',
+        ref: 'Likutei Etzot',
         description: 'Conseils pratiques du Rabbi Nachman',
         maxChapters: 153
     },
