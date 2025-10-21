@@ -52,31 +52,39 @@ exports.handler = async (event, context) => {
         }
 
         console.log('✅ API Key OK - Length:', OPENROUTER_API_KEY.length);
+        console.log('API Key preview:', OPENROUTER_API_KEY.substring(0, 20) + '...');
         console.log('Translating:', text.substring(0, 50));
+
+        const requestBody = {
+            model: 'mistralai/mistral-7b-instruct:free',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte anglais en français, sans commentaire ni explication. Retourne SEULEMENT la traduction.'
+                },
+                {
+                    role: 'user',
+                    content: text
+                }
+            ],
+            temperature: 0.3,
+            max_tokens: 2000
+        };
+
+        const requestHeaders = {
+            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'https://hakol-kol-rabenou.netlify.app',
+            'X-Title': 'Hakol Kol Rabenou'
+        };
+
+        console.log('Request headers keys:', Object.keys(requestHeaders));
+        console.log('Authorization header starts with:', requestHeaders.Authorization.substring(0, 25));
 
         const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://hakol-kol-rabenou.netlify.app',
-                'X-Title': 'Hakol Kol Rabenou'
-            },
-            body: JSON.stringify({
-                model: 'mistralai/mistral-7b-instruct:free',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte anglais en français, sans commentaire ni explication. Retourne SEULEMENT la traduction.'
-                    },
-                    {
-                        role: 'user',
-                        content: text
-                    }
-                ],
-                temperature: 0.3,
-                max_tokens: 2000
-            })
+            headers: requestHeaders,
+            body: JSON.stringify(requestBody)
         });
 
         if (!apiResponse.ok) {
