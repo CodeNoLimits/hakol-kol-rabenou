@@ -76,7 +76,11 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: apiResponse.status,
                 headers,
-                body: JSON.stringify({ error: 'Translation API error' })
+                body: JSON.stringify({ 
+                    error: 'Translation API error',
+                    details: errorText.substring(0, 200),
+                    status: apiResponse.status
+                })
             };
         }
 
