@@ -51,16 +51,18 @@ const BRESLOV_TEXTS = [
     {
         name: 'Likkutei Etzot',
         hebrewName: 'ליקוטי עצות',
-        ref: 'Likkutei Etzot',
+        ref: 'Likkutei Etzot, Truth and Faith',
         description: 'Conseils pratiques du Rabbi Nachman',
-        maxChapters: 153
+        maxChapters: 153,
+        isComplex: true
     },
     {
         name: 'Likutei Tefilot',
         hebrewName: 'ליקוטי תפילות',
-        ref: 'Likutei Tefilot',
+        ref: 'Likutei Tefilot, Volume I',
         description: 'Prières de Reb Noson',
-        maxChapters: 210
+        maxChapters: 210,
+        isComplex: true
     },
     {
         name: 'Chayei Moharan',
