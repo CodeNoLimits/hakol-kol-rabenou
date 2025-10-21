@@ -1,17 +1,7 @@
-/**
- * 🔐 FONCTION NETLIFY SERVERLESS - TRADUCTION SÉCURISÉE
- *
- * Cette fonction serverless s'exécute sur Netlify avec la clé API sécurisée.
- * Endpoint: /.netlify/functions/translate
- *
- * Configuration requise dans Netlify:
- *   Environment Variables → OPENROUTER_API_KEY = sk-or-v1-...
- */
-
-// Node.js 18+ a fetch natif, pas besoin de node-fetch
+// Fonction Netlify pour traduction sécurisée
+// La clé API OpenRouter est stockée comme variable d'environnement
 
 exports.handler = async (event, context) => {
-    // Headers CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -19,69 +9,56 @@ exports.handler = async (event, context) => {
         'Content-Type': 'application/json'
     };
 
-    // Gérer les requêtes OPTIONS (CORS preflight)
     if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers,
-            body: ''
-        };
+        return { statusCode: 200, headers, body: '' };
     }
 
-    // Vérifier que c'est une requête POST
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
             headers,
-            body: JSON.stringify({ error: 'Méthode non autorisée. Utilisez POST.' })
+            body: JSON.stringify({ error: 'Method not allowed' })
         };
     }
 
     try {
-        // Parser le body
         const { text } = JSON.parse(event.body);
 
         if (!text || typeof text !== 'string') {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({
-                    error: 'Le champ "text" est requis et doit être une chaîne'
-                })
+                body: JSON.stringify({ error: 'Text parameter required' })
             };
         }
 
-        console.log(\`🔄 Traduction Netlify: \${text.substring(0, 50)}...\`);
-
-        // Récupérer la clé API depuis les variables d'environnement Netlify
         const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
         if (!OPENROUTER_API_KEY) {
-            console.error('❌ OPENROUTER_API_KEY manquante dans Netlify env vars');
+            console.error('Missing OPENROUTER_API_KEY');
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({
-                    error: 'Configuration serveur manquante (clé API)'
-                })
+                body: JSON.stringify({ error: 'API key not configured' })
             };
         }
 
-        // Appel à OpenRouter API
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        console.log('Translating:', text.substring(0, 50));
+
+        const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': \`Bearer \${OPENROUTER_API_KEY}\`,
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                 'Content-Type': 'application/json',
                 'HTTP-Referer': 'https://hakol-kol-rabenou.netlify.app',
-                'X-Title': 'Hakol Kol Rabenou - Bibliothèque Breslov'
+                'X-Title': 'Hakol Kol Rabenou'
             },
             body: JSON.stringify({
                 model: 'google/gemini-2.0-flash-exp:free',
                 messages: [
                     {
                         role: 'system',
-                        content: 'Tu es un traducteur expert anglais-français spécialisé dans les textes religieux juifs. Traduis UNIQUEMENT le texte fourni en français, sans ajouter de commentaire, explication ou texte supplémentaire. Préserve le sens spirituel et les termes hébraïques importants.'
+                        content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte anglais en français, sans commentaire ni explication. Retourne SEULEMENT la traduction.'
                     },
                     {
                         role: 'user',
@@ -93,34 +70,29 @@ exports.handler = async (event, context) => {
             })
         });
 
-        if (!response.ok) {
-            const errorData = await response.text();
-            console.error(\`❌ Erreur OpenRouter: \${response.status}\`, errorData);
+        if (!apiResponse.ok) {
+            const errorText = await apiResponse.text();
+            console.error('OpenRouter error:', apiResponse.status, errorText);
             return {
-                statusCode: response.status,
+                statusCode: apiResponse.status,
                 headers,
-                body: JSON.stringify({
-                    error: \`Erreur API OpenRouter: \${response.status}\`,
-                    details: errorData
-                })
+                body: JSON.stringify({ error: 'Translation API error' })
             };
         }
 
-        const data = await response.json();
+        const data = await apiResponse.json();
         const french = data.choices?.[0]?.message?.content?.trim();
 
         if (!french) {
-            console.error('❌ Pas de traduction dans la réponse:', data);
+            console.error('No translation in response');
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({
-                    error: 'Pas de traduction dans la réponse API'
-                })
+                body: JSON.stringify({ error: 'No translation returned' })
             };
         }
 
-        console.log(\`✅ Traduction réussie: \${french.substring(0, 50)}...\`);
+        console.log('Translation success:', french.substring(0, 50));
 
         return {
             statusCode: 200,
@@ -129,13 +101,13 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error('❌ Erreur fonction Netlify:', error);
+        console.error('Function error:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({
-                error: 'Erreur serveur lors de la traduction',
-                message: error.message
+            body: JSON.stringify({ 
+                error: 'Internal error',
+                message: error.message 
             })
         };
     }
