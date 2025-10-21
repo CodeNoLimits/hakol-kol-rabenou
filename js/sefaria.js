@@ -864,69 +864,30 @@ window.translateVerse = async function(verseNum, englishText) {
 
     if (!button || !frenchDiv) return;
 
-    // Initialiser l'état si nécessaire
-    if (!verseTranslationState[verseNum]) {
-        verseTranslationState[verseNum] = {
-            fullText: englishText,
-            translatedChars: 0,
-            translations: []
-        };
-    }
-
-    const state = verseTranslationState[verseNum];
-    const remainingChars = state.fullText.length - state.translatedChars;
-    const chunkSize = 450; // Utiliser la même taille que le système intelligent
-
-    // Si déjà tout traduit
-    if (remainingChars <= 0) {
-        button.style.display = 'none';
-        return;
-    }
-
-    // Extraire le prochain chunk de 450 caractères
-    const chunk = state.fullText.substring(state.translatedChars, state.translatedChars + chunkSize);
-    const charsToTranslate = chunk.length;
-
     // Désactiver le bouton et afficher loading
     button.disabled = true;
-    const isFirstChunk = state.translatedChars === 0;
-    button.innerHTML = `⏳ Traduction en cours... (${charsToTranslate} caractères)`;
+    button.innerHTML = `⏳ Traduction en cours... (${englishText.length} caractères)`;
 
     try {
-        // Traduire le chunk avec le système de chunking intelligent
-        const french = await translateToFrench(chunk);
+        console.log(`🔄 Traduction verset ${verseNum} avec système intelligent...`);
+        
+        // Utiliser le système de chunking intelligent pour TOUT le texte
+        const french = await translateToFrench(englishText);
 
-        if (french && french !== chunk) {
-            // Succès - ajouter la traduction
-            state.translations.push(french);
-            state.translatedChars += charsToTranslate;
-
-            // Afficher toutes les traductions accumulées
-            frenchDiv.innerHTML = state.translations.join(' ');
+        if (french && french !== englishText) {
+            // Succès - afficher la traduction complète
+            frenchDiv.innerHTML = french;
             frenchDiv.style.display = 'block';
 
-            // Afficher un badge si c'est le premier chunk
-            if (isFirstChunk) {
-                const badge = document.createElement('div');
-                badge.className = 'translation-badge french';
-                badge.textContent = 'Français (Traduction progressive)';
-                frenchDiv.parentNode.insertBefore(badge, frenchDiv);
-            }
+            // Afficher un badge
+            const badge = document.createElement('div');
+            badge.className = 'translation-badge french';
+            badge.textContent = 'Français (Traduit)';
+            frenchDiv.parentNode.insertBefore(badge, frenchDiv);
 
-            // Calculer combien il reste
-            const newRemaining = state.fullText.length - state.translatedChars;
-            
-            if (newRemaining > 0) {
-                // Il reste du texte - changer le bouton en "Continuer à traduire"
-                button.disabled = false;
-                const remainingToShow = Math.min(newRemaining, chunkSize);
-                button.innerHTML = `🔄 Continuer à traduire (${remainingToShow} caractères)`;
-                console.log(`✅ Bloc traduit. Reste: ${newRemaining} caractères`);
-            } else {
-                // Traduction complète !
-                button.outerHTML = '<div class="translation-badge success">✅ Traduction complète</div>';
-                console.log(`✅ Verset ${verseNum} entièrement traduit !`);
-            }
+            // Remplacer le bouton par un badge de succès
+            button.outerHTML = '<div class="translation-badge success">✅ Traduction complète</div>';
+            console.log(`✅ Verset ${verseNum} entièrement traduit !`);
         } else {
             // Échec de traduction
             button.disabled = false;
