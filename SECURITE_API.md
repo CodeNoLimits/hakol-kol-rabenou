@@ -19,9 +19,10 @@ Pour que la traduction fonctionne, vous DEVEZ configurer la variable d'environne
 1. **Aller sur le dashboard Netlify** :
    - https://app.netlify.com/sites/hakol-kol-rabenou/configuration/env
 
-2. **Ajouter une nouvelle variable d'environnement** :
+2. **Ajouter/Modifier la variable d'environnement** :
    - Nom : `OPENROUTER_API_KEY`
-   - Valeur : `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`
+   - Valeur : `[VOTRE CLÉ OPENROUTER ICI]`
+   - **⚠️ NE JAMAIS mettre la clé dans le code ou la documentation!**
 
 3. **Sauvegarder et redéployer** :
    - Netlify redéploiera automatiquement avec la nouvelle variable
@@ -43,6 +44,7 @@ Pour que la traduction fonctionne, vous DEVEZ configurer la variable d'environne
 - ❌ **Pas de clé** dans le code JavaScript
 - ❌ **Pas de clé** dans les fichiers HTML
 - ❌ **Pas de clé** dans Git
+- ❌ **Pas de clé** dans la documentation
 - ✅ **Clé uniquement** dans les variables d'environnement Netlify (serveur)
 
 ### 📂 Fichiers Concernés
@@ -57,5 +59,15 @@ Si vous voyez un jour votre clé API exposée :
 1. Révoqué immédiatement l'ancienne clé sur OpenRouter
 2. Générez une nouvelle clé
 3. Mettez à jour UNIQUEMENT la variable d'environnement Netlify
-4. **NE JAMAIS** mettre la clé dans le code source
+4. **NE JAMAIS** mettre la clé dans le code source ou la documentation
 
+### 📍 Localisation de la clé
+
+**UNIQUE endroit sûr:**
+- Dashboard Netlify → Configuration → Environment Variables → `OPENROUTER_API_KEY`
+
+**Endroits INTERDITS:**
+- ❌ Fichiers `.js`, `.html`, `.md`
+- ❌ Fichiers `.env` (peuvent être commitées par erreur)
+- ❌ Documentation, README, tutoriels
+- ❌ Commentaires de code
