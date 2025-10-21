@@ -1,5 +1,6 @@
 // Fonction Netlify pour traduction sécurisée
 // La clé API OpenRouter est stockée comme variable d'environnement
+// Force reload: 2025-01-20
 
 exports.handler = async (event, context) => {
     const headers = {
