@@ -558,15 +558,24 @@ async function translateWithOpenRouter(text) {
         }
         
         const data = await response.json();
+        console.log('📦 Réponse MyMemory:', data);
+        
         let french = data.responseData?.translatedText;
         
-        if (french) {
+        if (french && typeof french === 'string') {
             french = french.trim();
-            console.log(`✅ Traduit: ${french.substring(0, 50)}...`);
+            
+            // Vérifier que ce n'est pas identique à l'anglais
+            if (french.toLowerCase() === text.toLowerCase()) {
+                console.warn('⚠️ Traduction identique à l\'original, considéré comme échec');
+                return null;
+            }
+            
+            console.log(`✅ TRADUCTION RÉUSSIE: "${french.substring(0, 100)}..."`);
             return french;
         }
         
-        console.error('Format de réponse inattendu:', data);
+        console.error('❌ Pas de traduction dans la réponse:', data);
         return null;
         
     } catch (error) {
