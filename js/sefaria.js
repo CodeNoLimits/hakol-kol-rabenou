@@ -875,7 +875,7 @@ window.translateVerse = async function(verseNum, englishText) {
 
     const state = verseTranslationState[verseNum];
     const remainingChars = state.fullText.length - state.translatedChars;
-    const chunkSize = 500;
+    const chunkSize = 450; // Utiliser la même taille que le système intelligent
 
     // Si déjà tout traduit
     if (remainingChars <= 0) {
@@ -883,7 +883,7 @@ window.translateVerse = async function(verseNum, englishText) {
         return;
     }
 
-    // Extraire le prochain chunk de 500 caractères
+    // Extraire le prochain chunk de 450 caractères
     const chunk = state.fullText.substring(state.translatedChars, state.translatedChars + chunkSize);
     const charsToTranslate = chunk.length;
 
@@ -893,8 +893,8 @@ window.translateVerse = async function(verseNum, englishText) {
     button.innerHTML = `⏳ Traduction en cours... (${charsToTranslate} caractères)`;
 
     try {
-        // Traduire le chunk avec MyMemory (GRATUIT)
-        const french = await translateWithOpenRouter(chunk);
+        // Traduire le chunk avec le système de chunking intelligent
+        const french = await translateToFrench(chunk);
 
         if (french && french !== chunk) {
             // Succès - ajouter la traduction
