@@ -480,9 +480,10 @@ function buildVerseHTMLSync(verseNum, hebrew, english, french = '') {
             <div class="verse-text french" id="french-${verseNum}">${french}</div>
         `;
     } else if (english && english.trim() && !french) {
-        // Bouton pour traduire à la demande
+        // Bouton pour traduire à la demande - encode en base64 pour éviter problèmes caractères spéciaux
+        const englishB64 = btoa(unescape(encodeURIComponent(english)));
         html += `
-            <button class="translate-btn" onclick="translateVerse(${verseNum}, \`${english.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" id="translate-btn-${verseNum}">
+            <button class="translate-btn" onclick="translateVerseB64(${verseNum}, '${englishB64}')" id="translate-btn-${verseNum}">
                 🇫🇷 Traduire en français
             </button>
             <div class="verse-text french" id="french-${verseNum}" style="display: none;"></div>
@@ -801,6 +802,15 @@ function setupEventListeners() {
 // ===================================
 // Traduction À LA DEMANDE d'un verset
 // ===================================
+
+// Version avec décodage base64 (pour caractères spéciaux)
+async function translateVerseB64(verseNum, englishB64) {
+    // Décoder le base64
+    const englishText = decodeURIComponent(escape(atob(englishB64)));
+    // Appeler la vraie fonction
+    return translateVerse(verseNum, englishText);
+}
+
 async function translateVerse(verseNum, englishText) {
     const button = document.getElementById(`translate-btn-${verseNum}`);
     const frenchDiv = document.getElementById(`french-${verseNum}`);
