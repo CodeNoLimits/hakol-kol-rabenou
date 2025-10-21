@@ -540,12 +540,12 @@ function hideTranslationProgress() {
 }
 
 // ===================================
-// Traduction avec OpenRouter (ÉCONOMIQUE)
+// Traduction avec MyMemory (GRATUIT)
 // ===================================
 async function translateWithOpenRouter(text) {
     if (!text || text.trim() === '') return null;
     
-    console.log(`🔄 Traduction sécurisée via Netlify Function: ${text.length} caractères...`);
+    console.log(`🔄 MyMemory via Netlify: ${text.length} caractères...`);
     
     try {
         // Appeler la Netlify Function au lieu de l'API directement
@@ -578,7 +578,7 @@ async function translateWithOpenRouter(text) {
         return null;
         
     } catch (error) {
-        console.error('Erreur traduction OpenRouter:', error);
+        console.error('❌ Erreur traduction MyMemory:', error);
         return null;
     }
 }
@@ -855,7 +855,7 @@ window.translateVerse = async function(verseNum, englishText) {
     button.innerHTML = '⏳ Traduction...';
 
     try {
-        // Traduire avec OpenRouter (ÉCONOMIQUE)
+        // Traduire avec MyMemory (GRATUIT)
         const french = await translateWithOpenRouter(englishText);
 
         if (french && french !== englishText) {
