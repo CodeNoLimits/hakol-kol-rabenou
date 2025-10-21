@@ -40,17 +40,18 @@ const BRESLOV_TEXTS = [
         maxChapters: 543,
         isComplex: true
     },
+    // NOTE: Rabbi Nachman's Stories N'EXISTE PAS sur Sefaria API
+    // {
+    //     name: "Rabbi Nachman's Stories",
+    //     hebrewName: 'סיפורי מעשיות',
+    //     ref: "Rabbi Nachman's Stories",
+    //     description: 'Les 13 Contes du Rabbi Nachman - NON DISPONIBLE',
+    //     maxChapters: 13
+    // },
     {
-        name: "Rabbi Nachman's Stories",
-        hebrewName: 'סיפורי מעשיות',
-        ref: "Rabbi Nachman's Stories",
-        description: 'Les 13 Contes du Rabbi Nachman',
-        maxChapters: 13
-    },
-    {
-        name: 'Likutei Etzot',
+        name: 'Likkutei Etzot',
         hebrewName: 'ליקוטי עצות',
-        ref: 'Likutei Etzot',
+        ref: 'Likkutei Etzot',
         description: 'Conseils pratiques du Rabbi Nachman',
         maxChapters: 153
     },
@@ -917,7 +918,7 @@ window.translateVerse = async function(verseNum, englishText) {
 }
 
 // Bouton "Traduire TOUT" pour traduire tous les versets non traduits
-async function translateAllVerses() {
+window.translateAllVerses = async function() {
     const allButtons = document.querySelectorAll('.translate-btn');
 
     if (allButtons.length === 0) {

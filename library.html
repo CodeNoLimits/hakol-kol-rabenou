@@ -97,8 +97,9 @@
                     <input type="checkbox" id="showEnglish" checked>
                     <span data-i18n="show_english">Afficher Anglais</span>
                 </label>
-                <label>
-                    <input type="checkbox" id="autoTranslateFr">
+                <!-- Traduction FR (verset par verset avec OpenRouter) -->
+                <label style="opacity: 0.5; cursor: not-allowed;" title="Traduction désactivée - Utilisez les boutons par verset">
+                    <input type="checkbox" id="autoTranslateFr" disabled>
                     <span data-i18n="auto_translate_fr">✨ Traduction Auto FR ✨</span>
                 </label>
             </div>
@@ -173,6 +174,8 @@
     </footer>
 
     <!-- Scripts -->
+    <!-- Configuration API (créer depuis config.template.js) -->
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
     <script src="js/sefaria.js"></script>
 </body>
