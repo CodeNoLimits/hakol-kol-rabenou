@@ -568,8 +568,8 @@ async function translateWithOpenRouter(text) {
         
         const data = await response.json();
         
-        if (data.translation) {
-            const french = data.translation.trim();
+        if (data.french) {
+            const french = data.french.trim();
             console.log(`✅ Traduit (sécurisé): ${french.substring(0, 50)}...`);
             return french;
         }
@@ -633,15 +633,9 @@ async function translateChunk(chunk, useLibreTranslate = true) {
         // 🔐 UTILISATION DU SERVEUR SÉCURISÉ
         // La clé API est protégée côté serveur, jamais exposée au client
 
-        // Détecter si on est en local (développement) ou en production (Netlify)
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const serverUrl = isLocal
-            ? 'http://localhost:3001/api/translate'  // Développement local
-            : 'https://hakol-kol-rabenou.netlify.app/.netlify/functions/translate';  // Production Netlify
+        console.log(`🔄 Traduction via Netlify Function: ${chunk.substring(0, 50)}...`);
 
-        console.log(`🔄 Traduction via serveur sécurisé: ${serverUrl}`);
-
-        const response = await fetch(serverUrl, {
+        const response = await fetch('/.netlify/functions/translate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

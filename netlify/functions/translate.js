@@ -8,7 +8,7 @@
  *   Environment Variables → OPENROUTER_API_KEY = sk-or-v1-...
  */
 
-const fetch = require('node-fetch');
+// Node.js 18+ a fetch natif, pas besoin de node-fetch
 
 exports.handler = async (event, context) => {
     // Headers CORS
