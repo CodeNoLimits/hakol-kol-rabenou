@@ -33,11 +33,12 @@ const BRESLOV_TEXTS = [
         maxChapters: 326
     },
     {
-        name: 'Sefer HaMidot',
+        name: 'Sefer HaMiddot',
         hebrewName: 'ספר המדות',
-        ref: 'Sefer HaMidot',
+        ref: 'Sefer HaMiddot, Introduction',
         description: 'Le Livre des Traits de Caractère',
-        maxChapters: 543
+        maxChapters: 543,
+        isComplex: true
     },
     {
         name: "Rabbi Nachman's Stories",
@@ -379,10 +380,10 @@ async function displayText(textData, indexData) {
     // Determine if it's array or string
     const isArray = Array.isArray(hebrewText);
     
-    // NOUVELLE APPROCHE: Traduire TOUT le texte anglais EN UNE SEULE FOIS
+    // TRADUCTION FRANÇAISE DÉSACTIVÉE (trop de bugs)
     let frenchTranslations = [];
     
-    if (autoTranslate) {
+    if (false) { // DÉSACTIVÉ
         if (isArray && englishText.length > 0) {
             // Convertir chaque élément en string et filtrer les vides
             const cleanedTexts = englishText.map(t => {
@@ -532,6 +533,69 @@ function hideTranslationProgress() {
     const progressBar = document.getElementById('translationProgress');
     if (progressBar) {
         progressBar.classList.remove('show');
+    }
+}
+
+// ===================================
+// Traduction avec OpenRouter (ÉCONOMIQUE)
+// ===================================
+async function translateWithOpenRouter(text) {
+    // Vérifier que l'API est configurée
+    if (!window.API_CONFIG || !window.API_CONFIG.OPENROUTER_API_KEY) {
+        console.error('API OpenRouter non configurée');
+        return null;
+    }
+    
+    if (!text || text.trim() === '') return null;
+    
+    console.log(`🔄 Traduction OpenRouter: ${text.length} caractères...`);
+    
+    try {
+        const response = await fetch(window.API_CONFIG.API_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${window.API_CONFIG.OPENROUTER_API_KEY}`,
+                'HTTP-Referer': window.location.href,
+                'X-Title': 'Hakol Kol Rabenou'
+            },
+            body: JSON.stringify({
+                model: window.API_CONFIG.MODEL,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte en français, sans ajouter aucun commentaire, explication ou reformulation. Retourne SEULEMENT la traduction.'
+                    },
+                    {
+                        role: 'user',
+                        content: `Traduis ce texte anglais en français:\n\n${text}`
+                    }
+                ],
+                temperature: 0.3,
+                max_tokens: Math.min(2000, Math.ceil(text.length * 2))
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Erreur OpenRouter:', response.status, errorText);
+            return null;
+        }
+        
+        const data = await response.json();
+        
+        if (data.choices && data.choices[0] && data.choices[0].message) {
+            const french = data.choices[0].message.content.trim();
+            console.log(`✅ Traduit: ${french.substring(0, 50)}...`);
+            return french;
+        }
+        
+        console.error('Format de réponse inattendu:', data);
+        return null;
+        
+    } catch (error) {
+        console.error('Erreur traduction OpenRouter:', error);
+        return null;
     }
 }
 
@@ -803,15 +867,15 @@ function setupEventListeners() {
 // Traduction À LA DEMANDE d'un verset
 // ===================================
 
-// Version avec décodage base64 (pour caractères spéciaux)
-async function translateVerseB64(verseNum, englishB64) {
+// Version avec décodage base64 (pour caractères spéciaux) - GLOBALE
+window.translateVerseB64 = async function(verseNum, englishB64) {
     // Décoder le base64
     const englishText = decodeURIComponent(escape(atob(englishB64)));
     // Appeler la vraie fonction
-    return translateVerse(verseNum, englishText);
+    return window.translateVerse(verseNum, englishText);
 }
 
-async function translateVerse(verseNum, englishText) {
+window.translateVerse = async function(verseNum, englishText) {
     const button = document.getElementById(`translate-btn-${verseNum}`);
     const frenchDiv = document.getElementById(`french-${verseNum}`);
 
@@ -822,8 +886,8 @@ async function translateVerse(verseNum, englishText) {
     button.innerHTML = '⏳ Traduction...';
 
     try {
-        // Traduire le texte anglais
-        const french = await translateToFrench(englishText);
+        // Traduire avec OpenRouter (ÉCONOMIQUE)
+        const french = await translateWithOpenRouter(englishText);
 
         if (french && french !== englishText) {
             // Succès - afficher la traduction
