@@ -83,16 +83,22 @@ async function translateSingleChunk(chunk) {
     try {
         console.log(`🔄 Traduction chunk (${chunk.length} car.): "${chunk.substring(0, 50)}..."`);
 
-        const response = await fetch('/.netlify/functions/translate', {
-            method: 'POST', // IMPORTANT: POST pas GET !
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: chunk,
-                instruction: 'Translate to French. Return only the French translation, nothing else.'
-            })
-        });
+        // Essayer d'abord translate-ultimate (5 APIs), fallback sur translate
+        let response;
+        try {
+            response = await fetch('/.netlify/functions/translate-ultimate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: chunk })
+            });
+        } catch (err) {
+            console.warn('⚠️ translate-ultimate failed, trying translate...', err.message);
+            response = await fetch('/.netlify/functions/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: chunk })
+            });
+        }
 
         if (!response.ok) {
             const errorText = await response.text();

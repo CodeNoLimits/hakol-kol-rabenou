@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DÉFI: Traduire 11,800 caractères - 100 Solutions</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            color: #333;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .challenge-info {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .challenge-info h2 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        .solutions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .solution-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .solution-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .solution-card.testing {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+        .solution-card.success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .solution-card.failed {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .solution-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .solution-desc {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .solution-status {
+            font-size: 0.85em;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .status-pending { background: #e0e0e0; color: #666; }
+        .status-testing { background: #ffc107; color: #856404; }
+        .status-success { background: #28a745; color: white; }
+        .status-failed { background: #dc3545; color: white; }
+
+        .test-area {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .test-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #856404;
+        }
+        #logConsole {
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            border-radius: 10px;
+            height: 400px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        .log-info { color: #00bcd4; }
+        .log-success { color: #4caf50; }
+        .log-error { color: #f44336; }
+        .log-warning { color: #ff9800; }
+
+        .result-box {
+            background: white;
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        .result-box.show {
+            display: block;
+        }
+        .french-text {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 DÉFI: Traduire 11,800 Caractères</h1>
+
+        <div class="challenge-info">
+            <h2>🔥 Le Défi</h2>
+            <p><strong>Mission:</strong> Traduire un texte de Likutei Moharan (11,800 caractères) de l'anglais vers le français.</p>
+            <p><strong>Contrainte:</strong> Aucune erreur 414 URI Too Long autorisée.</p>
+            <p><strong>Objectif:</strong> Tester 100 solutions différentes jusqu'au succès total.</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="solutionsTested">0</div>
+                <div class="stat-label">Solutions Testées</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="successCount">0</div>
+                <div class="stat-label">Succès</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="failCount">0</div>
+                <div class="stat-label">Échecs</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="charsTranslated">0</div>
+                <div class="stat-label">Caractères Traduits</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill">0%</div>
+        </div>
+
+        <div class="test-area">
+            <h3>🧪 Zone de Test</h3>
+            <div class="test-controls">
+                <button class="btn btn-primary" onclick="testAllSolutions()">🚀 TESTER TOUTES LES SOLUTIONS</button>
+                <button class="btn btn-success" onclick="testSolution1()">Test Solution #1</button>
+                <button class="btn btn-warning" onclick="loadRealText()">📖 Charger Likutei Moharan</button>
+                <button class="btn btn-danger" onclick="clearLogs()">🗑️ Effacer Logs</button>
+            </div>
+
+            <div id="logConsole"></div>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            <h3>✅ SUCCÈS ! Traduction Complète</h3>
+            <div><strong>Solution gagnante:</strong> <span id="winningSolution"></span></div>
+            <div><strong>Temps:</strong> <span id="translationTime"></span></div>
+            <div><strong>Caractères traduits:</strong> <span id="finalCharCount"></span></div>
+            <div class="french-text" id="frenchResult"></div>
+        </div>
+
+        <h3>📋 Solutions à Tester (100)</h3>
+        <div class="solutions-grid" id="solutionsGrid"></div>
+    </div>
+
+    <script>
+        // =====================================
+        // VARIABLES GLOBALES
+        // =====================================
+
+        let solutionsTested = 0;
+        let successCount = 0;
+        let failCount = 0;
+        let charsTranslated = 0;
+        let realText = '';
+        let startTime = 0;
+
+        // =====================================
+        // 100 SOLUTIONS À TESTER
+        // =====================================
+
+        const solutions = [
+            { id: 1, name: "Google Translate API Directe", desc: "API Google Cloud Translation", api: "google" },
+            { id: 2, name: "Chunking 200 caractères", desc: "Découpage ultra-fin", chunk: 200 },
+            { id: 3, name: "Chunking 100 caractères", desc: "Découpage très fin", chunk: 100 },
+            { id: 4, name: "Chunking 50 caractères", desc: "Découpage extrême", chunk: 50 },
+            { id: 5, name: "MyMemory API", desc: "API gratuite MyMemory", api: "mymemory" },
+            { id: 6, name: "LibreTranslate Public", desc: "Instance publique LibreTranslate", api: "libretranslate" },
+            { id: 7, name: "DeepL Free API", desc: "DeepL avec chunking", api: "deepl" },
+            { id: 8, name: "Traduction Progressive", desc: "Chunk par chunk avec affichage", progressive: true },
+            { id: 9, name: "Cache LocalStorage", desc: "Cache des chunks traduits", cache: true },
+            { id: 10, name: "Parallel Chunks", desc: "Traduction parallèle", parallel: true },
+            { id: 11, name: "Chunking par Phrases", desc: "Découpage intelligent phrases", sentence: true },
+            { id: 12, name: "Chunking par Paragraphes", desc: "Découpage par paragraphes", paragraph: true },
+            { id: 13, name: "Microsoft Translator", desc: "API Microsoft", api: "microsoft" },
+            { id: 14, name: "Yandex Translate", desc: "API Yandex", api: "yandex" },
+            { id: 15, name: "Amazon Translate", desc: "AWS Translate", api: "amazon" },
+            { id: 16, name: "IBM Watson", desc: "IBM Language Translator", api: "ibm" },
+            { id: 17, name: "Retry on Fail", desc: "Réessayer 3x si échec", retry: 3 },
+            { id: 18, name: "Exponential Backoff", desc: "Pause exponentielle entre chunks", backoff: true },
+            { id: 19, name: "Rate Limiting 1s", desc: "1 seconde entre chunks", delay: 1000 },
+            { id: 20, name: "Rate Limiting 2s", desc: "2 secondes entre chunks", delay: 2000 },
+
+            // 21-40: Variations de chunking
+            { id: 21, name: "Chunking 150 car", desc: "150 caractères", chunk: 150 },
+            { id: 22, name: "Chunking 250 car", desc: "250 caractères", chunk: 250 },
+            { id: 23, name: "Chunking 300 car", desc: "300 caractères", chunk: 300 },
+            { id: 24, name: "Chunking 350 car", desc: "350 caractères", chunk: 350 },
+            { id: 25, name: "Chunking 450 car", desc: "450 caractères", chunk: 450 },
+            { id: 26, name: "Chunking 500 car", desc: "500 caractères", chunk: 500 },
+            { id: 27, name: "Chunking Adaptatif", desc: "Ajuste selon succès/échec", adaptive: true },
+            { id: 28, name: "Chunking Binaire", desc: "Divise par 2 si échec", binary: true },
+            { id: 29, name: "Chunking par Mots", desc: "N mots par chunk", words: 50 },
+            { id: 30, name: "Chunking Hybride", desc: "Phrases + limite caractères", hybrid: true },
+
+            // 31-50: APIs alternatives et proxies
+            { id: 31, name: "Translatepy Library", desc: "Lib Python via proxy", lib: "translatepy" },
+            { id: 32, name: "Argos Translate", desc: "Traduction locale open-source", api: "argos" },
+            { id: 33, name: "OpenNMT", desc: "Neural machine translation", api: "opennmt" },
+            { id: 34, name: "MarianMT", desc: "Modèle Hugging Face", api: "marianmt" },
+            { id: 35, name: "Proxy CORS", desc: "Via proxy CORS", proxy: true },
+            { id: 36, name: "Worker Cloudflare", desc: "Via Cloudflare Worker", worker: true },
+            { id: 37, name: "Edge Function", desc: "Netlify Edge Function", edge: true },
+            { id: 38, name: "Serverless Vercel", desc: "Vercel Serverless", vercel: true },
+            { id: 39, name: "AWS Lambda", desc: "Via AWS Lambda", lambda: true },
+            { id: 40, name: "Google Cloud Function", desc: "GCF traduction", gcf: true },
+
+            // 41-60: Optimisations et stratégies
+            { id: 41, name: "Compression GZIP", desc: "Compresser avant envoi", compression: true },
+            { id: 42, name: "Base64 Encoding", desc: "Encoder en base64", base64: true },
+            { id: 43, name: "URL Safe Encoding", desc: "Encodage URL-safe", urlsafe: true },
+            { id: 44, name: "JSON Streaming", desc: "Stream JSON chunks", stream: true },
+            { id: 45, name: "WebSocket", desc: "Via WebSocket", websocket: true },
+            { id: 46, name: "Server-Sent Events", desc: "SSE pour progression", sse: true },
+            { id: 47, name: "Batch API", desc: "Requête batch unique", batch: true },
+            { id: 48, name: "GraphQL", desc: "Via GraphQL mutation", graphql: true },
+            { id: 49, name: "gRPC", desc: "gRPC pour performance", grpc: true },
+            { id: 50, name: "HTTP/2", desc: "Multiplexing HTTP/2", http2: true },
+
+            // 51-70: Fallbacks et hybrides
+            { id: 51, name: "Multi-API Fallback", desc: "Essayer 5 APIs", multiapi: true },
+            { id: 52, name: "Cascade API", desc: "Google→DeepL→Libre→MyMemory", cascade: true },
+            { id: 53, name: "Load Balancing", desc: "Round-robin entre APIs", loadbalance: true },
+            { id: 54, name: "API Rotation", desc: "Alterner APIs par chunk", rotation: true },
+            { id: 55, name: "Hybrid Translation", desc: "Combiner plusieurs résultats", hybrid_translation: true },
+            { id: 56, name: "Quality Check", desc: "Vérifier qualité et réessayer", quality: true },
+            { id: 57, name: "Human-in-Loop", desc: "Validation manuelle chunks", human: true },
+            { id: 58, name: "Pre-translation Cache", desc: "Base de traductions pré-faites", precache: true },
+            { id: 59, name: "Translation Memory", desc: "Mémoire de traduction", tm: true },
+            { id: 60, name: "Glossary Injection", desc: "Glossaire termes hébreux", glossary: true },
+
+            // 61-80: Innovations
+            { id: 61, name: "AI Chunking", desc: "IA décide des chunks", ai_chunk: true },
+            { id: 62, name: "Context Preservation", desc: "Garder contexte entre chunks", context: true },
+            { id: 63, name: "Semantic Chunking", desc: "Découpage sémantique", semantic: true },
+            { id: 64, name: "Neural Chunking", desc: "Réseau de neurones pour découper", neural: true },
+            { id: 65, name: "Sentence Boundary", desc: "Détection limites phrases NLP", nlp: true },
+            { id: 66, name: "Token-based Split", desc: "Découpage par tokens", tokens: true },
+            { id: 67, name: "Regex Advanced", desc: "Regex complexe pour chunks", regex: true },
+            { id: 68, name: "ML Optimization", desc: "ML pour taille optimale", ml: true },
+            { id: 69, name: "A/B Testing", desc: "Test plusieurs stratégies", ab: true },
+            { id: 70, name: "Genetic Algorithm", desc: "Algo génétique chunking", genetic: true },
+
+            // 71-90: Performance
+            { id: 71, name: "Web Workers", desc: "Traduction en parallèle workers", webworker: true },
+            { id: 72, name: "Service Worker", desc: "Cache via service worker", sw: true },
+            { id: 73, name: "IndexedDB Cache", desc: "Cache IndexedDB", indexeddb: true },
+            { id: 74, name: "Prefetch Next", desc: "Précharger chunk suivant", prefetch: true },
+            { id: 75, name: "Lazy Loading", desc: "Charger à la demande", lazy: true },
+            { id: 76, name: "Virtual Scrolling", desc: "Affichage virtuel", virtual: true },
+            { id: 77, name: "Pagination", desc: "Pagination des chunks", pagination: true },
+            { id: 78, name: "Infinite Scroll", desc: "Scroll infini traduction", infinite: true },
+            { id: 79, name: "Progressive Web App", desc: "PWA avec offline", pwa: true },
+            { id: 80, name: "Wasm Acceleration", desc: "WebAssembly pour vitesse", wasm: true },
+
+            // 81-100: Solutions créatives
+            { id: 81, name: "Email API", desc: "Envoyer par email et recevoir trad", email: true },
+            { id: 82, name: "SMS Gateway", desc: "Via SMS gateway", sms: true },
+            { id: 83, name: "QR Code Transfer", desc: "QR code pour gros textes", qr: true },
+            { id: 84, name: "Blockchain Storage", desc: "Stocker sur blockchain", blockchain: true },
+            { id: 85, name: "IPFS Upload", desc: "Upload IPFS puis traduire", ipfs: true },
+            { id: 86, name: "Torrent Seed", desc: "Partage P2P", torrent: true },
+            { id: 87, name: "Pastebin Relay", desc: "Via Pastebin", pastebin: true },
+            { id: 88, name: "GitHub Gist", desc: "Upload Gist puis traduire", gist: true },
+            { id: 89, name: "Google Docs API", desc: "Via Google Docs", gdocs: true },
+            { id: 90, name: "Dropbox API", desc: "Upload Dropbox", dropbox: true },
+            { id: 91, name: "OneDrive API", desc: "OneDrive transfer", onedrive: true },
+            { id: 92, name: "Notion API", desc: "Page Notion", notion: true },
+            { id: 93, name: "Airtable API", desc: "Base Airtable", airtable: true },
+            { id: 94, name: "Firebase Realtime", desc: "Firebase Realtime DB", firebase: true },
+            { id: 95, name: "Supabase", desc: "Via Supabase", supabase: true },
+            { id: 96, name: "MongoDB Atlas", desc: "MongoDB cloud", mongodb: true },
+            { id: 97, name: "Redis Pub/Sub", desc: "Redis pour queue", redis: true },
+            { id: 98, name: "RabbitMQ Queue", desc: "Queue RabbitMQ", rabbitmq: true },
+            { id: 99, name: "Kafka Stream", desc: "Streaming Kafka", kafka: true },
+            { id: 100, name: "Manual Ollama", desc: "Ollama local en dernier recours", ollama: true }
+        ];
+
+        // =====================================
+        // AFFICHAGE DES SOLUTIONS
+        // =====================================
+
+        function renderSolutions() {
+            const grid = document.getElementById('solutionsGrid');
+            grid.innerHTML = solutions.map(sol => `
+                <div class="solution-card" id="solution-${sol.id}" onclick="testSingleSolution(${sol.id})">
+                    <div class="solution-title">#${sol.id}: ${sol.name}</div>
+                    <div class="solution-desc">${sol.desc}</div>
+                    <div class="solution-status status-pending" id="status-${sol.id}">⏳ En attente</div>
+                </div>
+            `).join('');
+        }
+
+        // =====================================
+        // LOGGING
+        // =====================================
+
+        function log(message, type = 'info') {
+            const console = document.getElementById('logConsole');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = `log-${type}`;
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${className}`;
+            entry.textContent = `[${timestamp}] ${message}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('logConsole').innerHTML = '';
+        }
+
+        // =====================================
+        // UPDATE STATS
+        // =====================================
+
+        function updateStats() {
+            document.getElementById('solutionsTested').textContent = solutionsTested;
+            document.getElementById('successCount').textContent = successCount;
+            document.getElementById('failCount').textContent = failCount;
+            document.getElementById('charsTranslated').textContent = charsTranslated;
+
+            const progress = (solutionsTested / 100) * 100;
+            const fill = document.getElementById('progressFill');
+            fill.style.width = progress + '%';
+            fill.textContent = Math.round(progress) + '%';
+        }
+
+        // =====================================
+        // CHARGER LE VRAI TEXTE
+        // =====================================
+
+        async function loadRealText() {
+            log('📖 Chargement du texte de Likutei Moharan depuis Sefaria...', 'info');
+
+            try {
+                const response = await fetch('https://www.sefaria.org/api/texts/Likutei_Moharan,_Part_I.1?commentary=0&context=0&pad=0');
+                const data = await response.json();
+
+                let english = '';
+                if (Array.isArray(data.text)) {
+                    english = data.text.join(' ');
+                } else {
+                    english = data.text;
+                }
+
+                realText = english;
+
+                log(`✅ Texte chargé: ${realText.length} caractères`, 'success');
+                log(`📊 Aperçu: "${realText.substring(0, 100)}..."`, 'info');
+
+                return realText;
+
+            } catch (error) {
+                log(`❌ Erreur chargement: ${error.message}`, 'error');
+
+                // Texte de secours pour tester
+                realText = "This is a test text. ".repeat(500); // ~10,000 caractères
+                log(`⚠️ Utilisation texte de test: ${realText.length} caractères`, 'warning');
+
+                return realText;
+            }
+        }
+
+        // =====================================
+        // SOLUTION #1: GOOGLE TRANSLATE DIRECTE
+        // =====================================
+
+        async function testSolution1() {
+            const solId = 1;
+            updateSolutionStatus(solId, 'testing');
+            log(`🧪 Test Solution #1: Google Translate API Directe`, 'info');
+
+            if (!realText) {
+                await loadRealText();
+            }
+
+            startTime = Date.now();
+
+            try {
+                // Solution 1: Utiliser Google Translate via notre fonction Netlify
+                // mais avec chunking à 200 caractères
+
+                const chunks = splitText(realText, 200);
+                log(`✂️ Texte découpé en ${chunks.length} chunks de 200 car. max`, 'info');
+
+                const translatedChunks = [];
+
+                for (let i = 0; i < chunks.length; i++) {
+                    log(`[${i+1}/${chunks.length}] Traduction chunk...`, 'info');
+
+                    const response = await fetch('/.netlify/functions/translate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: chunks[i] })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    if (data.french) {
+                        translatedChunks.push(data.french);
+                        charsTranslated += data.french.length;
+                        updateStats();
+                    } else {
+                        throw new Error('Pas de traduction retournée');
+                    }
+
+                    // Pause 300ms
+                    await new Promise(r => setTimeout(r, 300));
+                }
+
+                const finalTranslation = translatedChunks.join(' ');
+                const time = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                log(`✅ SUCCÈS! ${finalTranslation.length} caractères traduits en ${time}s`, 'success');
+
+                updateSolutionStatus(solId, 'success');
+                successCount++;
+                updateStats();
+
+                showResult(solId, finalTranslation, time);
+
+                return true;
+
+            } catch (error) {
+                log(`❌ ÉCHEC: ${error.message}`, 'error');
+                updateSolutionStatus(solId, 'failed');
+                failCount++;
+                solutionsTested++;
+                updateStats();
+
+                return false;
+            }
+        }
+
+        // =====================================
+        // HELPER: SPLIT TEXT
+        // =====================================
+
+        function splitText(text, maxLength = 200) {
+            if (text.length <= maxLength) return [text];
+
+            const chunks = [];
+            const sentences = text.split(/(?<=[.!?])\s+/);
+            let currentChunk = '';
+
+            for (const sentence of sentences) {
+                if (sentence.length > maxLength) {
+                    // Phrase trop longue, découper par mots
+                    if (currentChunk) {
+                        chunks.push(currentChunk.trim());
+                        currentChunk = '';
+                    }
+
+                    const words = sentence.split(' ');
+                    for (const word of words) {
+                        if ((currentChunk + ' ' + word).length > maxLength) {
+                            if (currentChunk) chunks.push(currentChunk.trim());
+                            currentChunk = word;
+                        } else {
+                            currentChunk += (currentChunk ? ' ' : '') + word;
+                        }
+                    }
+                } else {
+                    if ((currentChunk + ' ' + sentence).length > maxLength) {
+                        chunks.push(currentChunk.trim());
+                        currentChunk = sentence;
+                    } else {
+                        currentChunk += (currentChunk ? ' ' : '') + sentence;
+                    }
+                }
+            }
+
+            if (currentChunk) chunks.push(currentChunk.trim());
+
+            return chunks.filter(c => c.length > 0);
+        }
+
+        // =====================================
+        // UPDATE SOLUTION STATUS
+        // =====================================
+
+        function updateSolutionStatus(id, status) {
+            const card = document.getElementById(`solution-${id}`);
+            const statusEl = document.getElementById(`status-${id}`);
+
+            card.classList.remove('testing', 'success', 'failed');
+            statusEl.classList.remove('status-pending', 'status-testing', 'status-success', 'status-failed');
+
+            if (status === 'testing') {
+                card.classList.add('testing');
+                statusEl.classList.add('status-testing');
+                statusEl.textContent = '⏳ Test en cours...';
+            } else if (status === 'success') {
+                card.classList.add('success');
+                statusEl.classList.add('status-success');
+                statusEl.textContent = '✅ SUCCÈS';
+            } else if (status === 'failed') {
+                card.classList.add('failed');
+                statusEl.classList.add('status-failed');
+                statusEl.textContent = '❌ Échec';
+            }
+        }
+
+        // =====================================
+        // SHOW RESULT
+        // =====================================
+
+        function showResult(solutionId, translation, time) {
+            const resultBox = document.getElementById('resultBox');
+            document.getElementById('winningSolution').textContent = `Solution #${solutionId}: ${solutions[solutionId-1].name}`;
+            document.getElementById('translationTime').textContent = `${time} secondes`;
+            document.getElementById('finalCharCount').textContent = translation.length;
+            document.getElementById('frenchResult').textContent = translation;
+
+            resultBox.classList.add('show');
+        }
+
+        // =====================================
+        // TEST ALL SOLUTIONS
+        // =====================================
+
+        async function testAllSolutions() {
+            log('🚀 DÉBUT DU DÉFI: Test de 100 solutions!', 'success');
+
+            if (!realText) {
+                await loadRealText();
+            }
+
+            // Tester solution par solution jusqu'au succès
+            for (let i = 0; i < solutions.length; i++) {
+                const success = await testSingleSolution(i + 1);
+
+                if (success) {
+                    log(`🎉 VICTOIRE! Solution #${i+1} a réussi!`, 'success');
+                    break;
+                }
+
+                // Pause entre solutions
+                await new Promise(r => setTimeout(r, 1000));
+            }
+        }
+
+        // =====================================
+        // TEST SINGLE SOLUTION
+        // =====================================
+
+        async function testSingleSolution(id) {
+            solutionsTested++;
+            updateStats();
+
+            // Pour l'instant, seule la solution 1 est implémentée
+            if (id === 1) {
+                return await testSolution1();
+            }
+
+            // Les autres solutions seront implémentées progressivement
+            log(`⏭️ Solution #${id} pas encore implémentée`, 'warning');
+            updateSolutionStatus(id, 'failed');
+            failCount++;
+            updateStats();
+
+            return false;
+        }
+
+        // =====================================
+        // INIT
+        // =====================================
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderSolutions();
+            log('🎯 Système de test de 100 solutions prêt!', 'success');
+            log('📌 Cliquez sur "Charger Likutei Moharan" puis "TESTER TOUTES LES SOLUTIONS"', 'info');
+        });
+    </script>
+</body>
+</html>
