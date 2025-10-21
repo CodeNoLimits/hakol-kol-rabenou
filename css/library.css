@@ -532,3 +532,50 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* ===================================
+   Responsive - Tablet & Mobile
+   =================================== */
+@media (max-width: 768px) {
+    /* Translation progress bar */
+    .translation-progress { top: 60px; padding: 12px; }
+    .progress-container { max-width: 92%; }
+    .progress-title { font-size: 14px; }
+    .progress-percentage { font-size: 16px; }
+    .progress-details { font-size: 12px; }
+    .progress-bar-bg { height: 6px; }
+
+    /* Header */
+    .library-header { padding: var(--spacing-lg) 0; }
+
+    /* Search */
+    .search-bar { flex-direction: column; align-items: stretch; gap: var(--spacing-xs); }
+    .search-bar input { font-size: 16px; }
+    .search-bar .btn { width: 100%; }
+
+    /* Layout */
+    .library-layout { grid-template-columns: 1fr; gap: var(--spacing-lg); }
+    .library-sidebar { position: relative; top: 0; max-height: 50vh; }
+
+    /* Reader */
+    .text-reader { padding: var(--spacing-lg); min-height: 380px; }
+    .welcome-message i { font-size: 3rem; }
+
+    /* Verse blocks */
+    .verse-container { padding: var(--spacing-sm); }
+    .verse-text.hebrew { font-size: 1.1rem; line-height: 1.7; }
+    .verse-text.english, .verse-text.french { font-size: 0.98rem; }
+    .translation-badge { font-size: 0.7rem; }
+
+    /* Floating translate-all button */
+    .translate-all-btn { bottom: 16px; right: 16px; padding: 12px 18px; font-size: 14px; }
+}
+
+@media (max-width: 480px) {
+    .progress-title { font-size: 13px; }
+    .progress-percentage { font-size: 14px; }
+
+    .text-reader { padding: var(--spacing-md); }
+    .verse-text.hebrew { font-size: 1rem; }
+    .translate-btn { font-size: 13px; padding: 6px 12px; }
+}
