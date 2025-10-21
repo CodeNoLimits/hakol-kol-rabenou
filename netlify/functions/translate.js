@@ -1,6 +1,5 @@
 // Fonction Netlify pour traduction sécurisée
 // La clé API OpenRouter est stockée comme variable d'environnement
-// Force reload: 2025-01-20
 
 exports.handler = async (event, context) => {
     const headers = {
@@ -36,55 +35,41 @@ exports.handler = async (event, context) => {
         const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY?.trim();
 
         if (!OPENROUTER_API_KEY) {
-            console.error('Missing OPENROUTER_API_KEY');
+            console.error('❌ Missing OPENROUTER_API_KEY');
             return {
                 statusCode: 500,
                 headers,
                 body: JSON.stringify({ 
-                    error: 'API key not configured',
-                    debug: {
-                        envVarExists: !!process.env.OPENROUTER_API_KEY,
-                        envVarLength: process.env.OPENROUTER_API_KEY?.length,
-                        envVarStart: process.env.OPENROUTER_API_KEY?.substring(0, 15)
-                    }
+                    error: 'API key not configured'
                 })
             };
         }
 
-        console.log('✅ API Key OK - Length:', OPENROUTER_API_KEY.length);
-        console.log('API Key preview:', OPENROUTER_API_KEY.substring(0, 20) + '...');
-        console.log('Translating:', text.substring(0, 50));
-
-        const requestBody = {
-            model: 'mistralai/mistral-7b-instruct:free',
-            messages: [
-                {
-                    role: 'system',
-                    content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte anglais en français, sans commentaire ni explication. Retourne SEULEMENT la traduction.'
-                },
-                {
-                    role: 'user',
-                    content: text
-                }
-            ],
-            temperature: 0.3,
-            max_tokens: 2000
-        };
-
-        const requestHeaders = {
-            'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': 'https://hakol-kol-rabenou.netlify.app',
-            'X-Title': 'Hakol Kol Rabenou'
-        };
-
-        console.log('Request headers keys:', Object.keys(requestHeaders));
-        console.log('Authorization header starts with:', requestHeaders.Authorization.substring(0, 25));
+        console.log('🔄 Translation request:', text.substring(0, 50) + '...');
 
         const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
-            headers: requestHeaders,
-            body: JSON.stringify(requestBody)
+            headers: {
+                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'https://hakol-kol-rabenou.netlify.app',
+                'X-Title': 'Hakol Kol Rabenou'
+            },
+            body: JSON.stringify({
+                model: 'mistralai/mistral-7b-instruct:free',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte anglais en français, sans commentaire ni explication. Retourne SEULEMENT la traduction.'
+                    },
+                    {
+                        role: 'user',
+                        content: text
+                    }
+                ],
+                temperature: 0.3,
+                max_tokens: 2000
+            })
         });
 
         if (!apiResponse.ok) {
@@ -113,7 +98,7 @@ exports.handler = async (event, context) => {
             };
         }
 
-        console.log('Translation success:', french.substring(0, 50));
+        console.log('✅ Translation success:', french.substring(0, 50) + '...');
 
         return {
             statusCode: 200,
