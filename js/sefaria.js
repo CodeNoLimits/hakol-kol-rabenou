@@ -554,9 +554,64 @@ async function translateTextIntelligent(text) {
     }
 
     console.log(`🔄 TRADUCTION FRANÇAISE (${text.length} caractères)`);
-    console.log(`📝 Texte original: "${text.substring(0, 100)}..."`);
 
-    // Utiliser le système de traduction directe amélioré
+    // DIVISER EN PETITS MORCEAUX DE 300 CARACTÈRES MAX
+    if (text.length > 300) {
+        console.log(`📏 Texte long détecté - Division en morceaux...`);
+        
+        const chunks = [];
+        let currentPosition = 0;
+        
+        while (currentPosition < text.length) {
+            // Prendre 300 caractères max
+            let chunk = text.substring(currentPosition, currentPosition + 300);
+            
+            // Essayer de couper à un espace pour ne pas couper les mots
+            if (currentPosition + 300 < text.length) {
+                const lastSpace = chunk.lastIndexOf(' ');
+                if (lastSpace > 200) {
+                    chunk = chunk.substring(0, lastSpace);
+                }
+            }
+            
+            chunks.push(chunk);
+            currentPosition += chunk.length;
+            
+            // Passer les espaces suivants
+            while (currentPosition < text.length && text[currentPosition] === ' ') {
+                currentPosition++;
+            }
+        }
+        
+        console.log(`✂️ ${chunks.length} morceaux créés`);
+        
+        // Traduire chaque morceau
+        const translations = [];
+        for (let i = 0; i < chunks.length; i++) {
+            console.log(`🔄 Traduction morceau ${i + 1}/${chunks.length}...`);
+            
+            const translation = await translateToFrenchReliable(chunks[i]);
+            
+            if (translation) {
+                translations.push(translation);
+            } else {
+                console.warn(`⚠️ Échec traduction morceau ${i + 1}`);
+                translations.push(chunks[i]); // Garder l'original si échec
+            }
+            
+            // Pause entre traductions
+            if (i < chunks.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+        
+        // Joindre toutes les traductions
+        const result = translations.join(' ');
+        console.log(`✅ Traduction complète: ${result.substring(0, 100)}...`);
+        return result;
+    }
+
+    // Texte court - traduction directe
     return await translateToFrenchReliable(text);
 }
 
