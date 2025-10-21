@@ -73,7 +73,7 @@ const BRESLOV_TEXTS = [
 let currentBook = null;
 let currentSection = 1;
 let currentChapter = 1;
-let autoTranslate = true; // ACTIVÉ PAR DÉFAUT
+let autoTranslate = false; // DÉSACTIVÉ PAR DÉFAUT pour vitesse
 let showHebrew = true;
 let showEnglish = true;
 let maxSections = 1;
@@ -396,49 +396,10 @@ async function displayText(textData, indexData) {
             }).filter(t => t && t.trim() !== '');
 
             if (cleanedTexts.length > 0) {
-                // 🚀 OPTIMISATION: Traduction par LOTS de 10 versets
-                const BATCH_SIZE = 10;
-                const totalBatches = Math.ceil(cleanedTexts.length / BATCH_SIZE);
-
-                console.log(`🚀 Traduction optimisée: ${cleanedTexts.length} versets en ${totalBatches} lots de ${BATCH_SIZE}`);
-
-                // Afficher barre de progression (nombre STABLE de lots)
-                showTranslationProgress(totalBatches);
-                const startTime = Date.now();
-
-                for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-                    const start = batchIndex * BATCH_SIZE;
-                    const end = Math.min(start + BATCH_SIZE, cleanedTexts.length);
-                    const batchTexts = cleanedTexts.slice(start, end);
-
-                    // Mise à jour barre de progression (STABLE)
-                    updateTranslationProgress(batchIndex + 1, totalBatches, startTime);
-
-                    // Combiner ce lot uniquement
-                    const combinedBatch = batchTexts.join(' ||| ');
-
-                    // Traduire le lot (sans afficher de sous-barre)
-                    const translatedBatch = await translateToFrenchSilent(combinedBatch);
-
-                    if (translatedBatch) {
-                        // Découper et ajouter
-                        const batchTranslations = translatedBatch.split(' ||| ');
-                        frenchTranslations.push(...batchTranslations);
-                    } else {
-                        // Si échec, ajouter des vides
-                        frenchTranslations.push(...Array(batchTexts.length).fill(''));
-                    }
-
-                    // Petite pause entre lots (évite rate limiting)
-                    if (batchIndex < totalBatches - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 250));
-                    }
-                }
-
-                // Cacher barre de progression
-                setTimeout(() => hideTranslationProgress(), 500);
-
-                console.log(`✅ Traduction terminée: ${frenchTranslations.filter(f => f).length}/${cleanedTexts.length} versets traduits`);
+                // SIMPLE: Afficher les textes SANS traduction
+                // L'utilisateur peut activer la traduction manuellement s'il le souhaite
+                console.log(`📝 ${cleanedTexts.length} versets chargés (traduction désactivée par défaut)`);
+                // frenchTranslations reste vide
             }
         } else if (!isArray && englishText) {
             const french = await translateToFrench(englishText);
