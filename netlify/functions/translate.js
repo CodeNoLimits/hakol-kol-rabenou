@@ -1,61 +1,78 @@
-// Fonction Netlify pour traduction sécurisée avec OpenRouter
-// La clé API OpenRouter est stockée comme variable d'environnement: OPENROUTER_API_KEY
+// ===================================
+// SERVICE DE TRADUCTION QUI MARCHE VRAIMENT - DeepL API
+// ===================================
 
-const FREE_MODELS = [
-    {
-        name: 'Gemma 7B IT',
-        id: 'google/gemma-7b-it:free',
-        prompt: (text) => `Translate this English text to French. Only output the French translation, nothing else:\n\n${text}`
-    },
-    {
-        name: 'Llama 3 8B',
-        id: 'meta-llama/llama-3-8b-instruct:free',
-        prompt: (text) => `<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\nTranslate to French:\n${text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`
-    },
-    {
-        name: 'Mistral 7B',
-        id: 'mistralai/mistral-7b-instruct:free',
-        prompt: (text) => `[INST] Translate this to French:\n${text} [/INST]`
-    },
-    {
-        name: 'Nous Capybara 7B',
-        id: 'nousresearch/nous-capybara-7b:free',
-        prompt: (text) => `USER: Translate to French:\n${text}\n\nASSISTANT:`
-    },
-    {
-        name: 'Zephyr 7B Beta',
-        id: 'huggingfaceh4/zephyr-7b-beta:free',
-        prompt: (text) => `<|user|>\nTranslate to French:\n${text}</s>\n<|assistant|>\n`
-    }
-];
+const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
+const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
 
-async function callOpenRouter(apiKey, model, text) {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+async function translateWithDeepL(text, targetLang = 'FR') {
+    console.log(`🔄 DeepL Translation (${text.length} chars):`, text.substring(0, 50) + '...');
+
+    const response = await fetch(DEEPL_API_URL, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': 'https://hakolkolrabenou.com',
-            'X-Title': 'Hakol Kol Rabenou',
+            'Authorization': `DeepL-Auth-Key ${DEEPL_API_KEY}`,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            model: model.id,
-            messages: [{
-                role: 'user',
-                content: model.prompt(text)
-            }],
-            max_tokens: 1000,
-            temperature: 0.3
+            text: [text],
+            target_lang: targetLang,
+            source_lang: 'EN'
         })
     });
-    
+
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`HTTP ${response.status}: ${error}`);
+        const errorText = await response.text();
+        throw new Error(`DeepL API error: ${response.status} - ${errorText}`);
     }
-    
+
     const data = await response.json();
-    return data.choices?.[0]?.message?.content?.trim();
+
+    if (data.translations && data.translations[0]) {
+        const translation = data.translations[0].text;
+        console.log(`✅ DeepL Success:`, translation.substring(0, 50) + '...');
+        return translation;
+    }
+
+    throw new Error('No translation returned from DeepL');
+}
+
+// ===================================
+// BACKUP: LibreTranslate (gratuit)
+// ===================================
+
+const LIBRETRANSLATE_API_URL = 'https://libretranslate.com/translate';
+
+async function translateWithLibreTranslate(text, targetLang = 'fr') {
+    console.log(`🔄 LibreTranslate (${text.length} chars):`, text.substring(0, 50) + '...');
+
+    const response = await fetch(LIBRETRANSLATE_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            q: text,
+            source: 'en',
+            target: targetLang,
+            format: 'text'
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`LibreTranslate API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.translatedText) {
+        const translation = data.translatedText;
+        console.log(`✅ LibreTranslate Success:`, translation.substring(0, 50) + '...');
+        return translation;
+    }
+
+    throw new Error('No translation returned from LibreTranslate');
 }
 
 exports.handler = async (event, context) => {
@@ -79,7 +96,8 @@ exports.handler = async (event, context) => {
     }
 
     try {
-        const { text } = JSON.parse(event.body);
+        const body = JSON.parse(event.body || '{}');
+        const { text, instruction } = body;
 
         if (!text || typeof text !== 'string') {
             return {
@@ -89,61 +107,79 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // Limiter à 500 caractères pour traduction progressive
-        const textToTranslate = text.length > 500 ? text.substring(0, 500) : text;
-        
-        console.log(`🔄 OpenRouter Multi-Model Translate (${textToTranslate.length} chars):`, textToTranslate.substring(0, 50) + '...');
+        console.log(`🚀 Translation request: ${text.length} chars`);
+        console.log(`📝 Text: "${text.substring(0, 100)}..."`);
 
-        const apiKey = process.env.OPENROUTER_API_KEY;
-        
-        if (!apiKey) {
-            console.error('❌ OPENROUTER_API_KEY not configured');
-            return {
-                statusCode: 500,
-                headers,
-                body: JSON.stringify({ error: 'API key not configured' })
-            };
-        }
-
-        // Essayer chaque modèle dans l'ordre jusqu'à ce qu'un fonctionne
-        let lastError = null;
-        
-        for (let i = 0; i < FREE_MODELS.length; i++) {
-            const model = FREE_MODELS[i];
-            console.log(`🔌 Trying model ${i+1}/${FREE_MODELS.length}: ${model.name}...`);
-            
+        // 1. Essayer DeepL en premier (meilleur qualité)
+        if (DEEPL_API_KEY) {
             try {
-                const translation = await callOpenRouter(apiKey, model, textToTranslate);
-                
-                if (translation && translation.length > 10 && translation !== textToTranslate) {
-                    console.log(`✅ Success with ${model.name}:`, translation.substring(0, 50) + '...');
-                    
-                    return {
-                        statusCode: 200,
-                        headers,
-                        body: JSON.stringify({ 
-                            french: translation,
-                            model: model.name 
-                        })
-                    };
-                } else {
-                    console.log(`⚠️ ${model.name}: Invalid response`);
+                const translation = await translateWithDeepL(text, 'FR');
+
+                // Vérifier que c'est une vraie traduction française
+                if (translation && translation !== text && translation.length > 10) {
+                    // Vérifier si c'est vraiment du français (pas de l'anglais avec accents)
+                    const hasFrenchChars = /[àâäéèêëïîôöùûüÿç]/i.test(translation);
+                    const isNotEnglish = translation.toLowerCase() !== text.toLowerCase();
+
+                    if (hasFrenchChars && isNotEnglish) {
+                        console.log(`✅ DeepL SUCCESS: "${translation.substring(0, 50)}..."`);
+
+                        return {
+                            statusCode: 200,
+                            headers,
+                            body: JSON.stringify({
+                                french: translation,
+                                model: 'DeepL',
+                                method: 'DeepL API'
+                            })
+                        };
+                    }
                 }
-                
             } catch (error) {
-                console.error(`❌ ${model.name} failed:`, error.message);
-                lastError = error;
+                console.error('❌ DeepL failed:', error.message);
             }
         }
 
-        // Si tous les modèles ont échoué
-        console.error('❌ All models failed');
+        // 2. Fallback sur LibreTranslate (gratuit)
+        try {
+            const translation = await translateWithLibreTranslate(text, 'fr');
+
+            // Vérifier que c'est une vraie traduction française
+            if (translation && translation !== text && translation.length > 10) {
+                const hasFrenchChars = /[àâäéèêëïîôöùûüÿç]/i.test(translation);
+                const isNotEnglish = translation.toLowerCase() !== text.toLowerCase();
+
+                if (hasFrenchChars && isNotEnglish) {
+                    console.log(`✅ LibreTranslate SUCCESS: "${translation.substring(0, 50)}..."`);
+
+                    return {
+                        statusCode: 200,
+                        headers,
+                        body: JSON.stringify({
+                            french: translation,
+                            model: 'LibreTranslate',
+                            method: 'LibreTranslate API'
+                        })
+                    };
+                }
+            }
+        } catch (error) {
+            console.error('❌ LibreTranslate failed:', error.message);
+        }
+
+        // 3. Si tout échoue, retourner une erreur
+        console.error('❌ TOUS LES SERVICES DE TRADUCTION ONT ÉCHOUÉ');
+
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ 
-                error: 'All translation models failed',
-                details: lastError?.message 
+            body: JSON.stringify({
+                error: 'All translation services failed',
+                text: text.substring(0, 100),
+                available: {
+                    deepl: !!DEEPL_API_KEY,
+                    libretranslate: true
+                }
             })
         };
 
@@ -152,9 +188,9 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 error: 'Internal error',
-                message: error.message 
+                message: error.message
             })
         };
     }
