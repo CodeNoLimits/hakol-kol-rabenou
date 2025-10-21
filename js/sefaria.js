@@ -430,6 +430,17 @@ async function displayText(textData, indexData) {
     
     html += '</div>';
     textReader.innerHTML = html;
+    
+    // Afficher le bouton "Traduire tout" s'il y a des boutons de traduction
+    setTimeout(() => {
+        const translateAllBtn = document.getElementById('translateAllBtn');
+        const translateButtons = document.querySelectorAll('.translate-btn');
+        if (translateAllBtn && translateButtons.length > 0) {
+            translateAllBtn.style.display = 'block';
+        } else if (translateAllBtn) {
+            translateAllBtn.style.display = 'none';
+        }
+    }, 100);
 }
 
 // ===================================
