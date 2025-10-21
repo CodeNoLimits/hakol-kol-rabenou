@@ -543,53 +543,34 @@ function hideTranslationProgress() {
 // Traduction avec OpenRouter (ÉCONOMIQUE)
 // ===================================
 async function translateWithOpenRouter(text) {
-    // Vérifier que l'API est configurée
-    if (!window.API_CONFIG || !window.API_CONFIG.OPENROUTER_API_KEY) {
-        console.error('API OpenRouter non configurée');
-        return null;
-    }
-    
     if (!text || text.trim() === '') return null;
     
-    console.log(`🔄 Traduction OpenRouter: ${text.length} caractères...`);
+    console.log(`🔄 Traduction sécurisée via Netlify Function: ${text.length} caractères...`);
     
     try {
-        const response = await fetch(window.API_CONFIG.API_URL, {
+        // Appeler la Netlify Function au lieu de l'API directement
+        // La clé API est maintenant cachée côté serveur ✓
+        const response = await fetch('/.netlify/functions/translate', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${window.API_CONFIG.OPENROUTER_API_KEY}`,
-                'HTTP-Referer': window.location.href,
-                'X-Title': 'Hakol Kol Rabenou'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: window.API_CONFIG.MODEL,
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte en français, sans ajouter aucun commentaire, explication ou reformulation. Retourne SEULEMENT la traduction.'
-                    },
-                    {
-                        role: 'user',
-                        content: `Traduis ce texte anglais en français:\n\n${text}`
-                    }
-                ],
-                temperature: 0.3,
-                max_tokens: Math.min(2000, Math.ceil(text.length * 2))
+                text: text
             })
         });
         
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Erreur OpenRouter:', response.status, errorText);
+            const errorData = await response.json();
+            console.error('Erreur Netlify Function:', response.status, errorData);
             return null;
         }
         
         const data = await response.json();
         
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-            const french = data.choices[0].message.content.trim();
-            console.log(`✅ Traduit: ${french.substring(0, 50)}...`);
+        if (data.translation) {
+            const french = data.translation.trim();
+            console.log(`✅ Traduit (sécurisé): ${french.substring(0, 50)}...`);
             return french;
         }
         

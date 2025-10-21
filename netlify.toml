@@ -5,6 +5,10 @@
 [build.environment]
   NODE_VERSION = "18"
 
+[functions]
+  # Directory for Netlify Functions
+  directory = "netlify/functions"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
