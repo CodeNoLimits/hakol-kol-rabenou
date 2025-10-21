@@ -566,60 +566,139 @@ async function translateTextIntelligent(text) {
 // TRADUCTION FIABLE QUI MARCHE VRAIMENT
 // ===================================
 
+// ===================================
+// TRADUCTION DIRECTE SANS NETLIFY FUNCTION
+// ===================================
+
 async function translateToFrenchReliable(text) {
     try {
-        console.log(`🚀 APPEL API POUR: "${text.substring(0, 50)}..."`);
+        console.log(`🚀 TRADUCTION DIRECTE: "${text.substring(0, 50)}..."`);
 
-        const response = await fetch('/.netlify/functions/translate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: text,
-                target_language: 'french',
-                instruction: 'Translate this text to French. Only return the French translation, nothing else.'
-            })
-        });
-
-        console.log(`📡 Réponse HTTP: ${response.status}`);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`❌ ERREUR HTTP ${response.status}:`, errorText);
-            return null;
+        // 1. Essayer DeepL directement depuis le client
+        if (typeof window !== 'undefined' && window.DEEPL_API_KEY) {
+            try {
+                const translation = await translateWithDeepLDirect(text);
+                if (translation && isRealFrenchTranslation(text, translation)) {
+                    console.log(`✅ DEEPL DIRECT SUCCESS: "${translation.substring(0, 50)}..."`);
+                    return translation;
+                }
+            } catch (error) {
+                console.error('❌ DeepL direct failed:', error.message);
+            }
         }
 
-        const data = await response.json();
-        console.log(`📦 DONNÉES BRUTES:`, data);
-
-        if (!data || !data.french) {
-            console.error('❌ PAS DE CHAMP "french" DANS LA RÉPONSE');
-            return null;
+        // 2. Fallback sur LibreTranslate (gratuit et illimité)
+        try {
+            const translation = await translateWithLibreTranslateDirect(text);
+            if (translation && isRealFrenchTranslation(text, translation)) {
+                console.log(`✅ LIBRETRANSLATE DIRECT SUCCESS: "${translation.substring(0, 50)}..."`);
+                return translation;
+            }
+        } catch (error) {
+            console.error('❌ LibreTranslate direct failed:', error.message);
         }
 
-        const french = data.french.trim();
-        console.log(`🇫🇷 TRADUCTION OBTENUE: "${french.substring(0, 100)}..."`);
-
-        // Vérifier que c'est vraiment du français (pas identique à l'anglais)
-        if (french.toLowerCase() === text.toLowerCase()) {
-            console.warn('⚠️ TRADUCTION IDENTIQUE À L\'ORIGINAL - PAS DE VRAIE TRADUCTION');
-            return null;
-        }
-
-        // Vérifier que ce n'est pas juste de l'anglais avec des accents
-        if (french.replace(/[àâäéèêëïîôöùûüÿç]/gi, '').toLowerCase() === text.toLowerCase()) {
-            console.warn('⚠️ TRADUCTION SUSPECTE - POSSIBLEMENT PAS DU VRAI FRANÇAIS');
-            return null;
-        }
-
-        console.log(`✅ TRADUCTION VALIDÉE: "${french.substring(0, 50)}..."`);
-        return french;
+        console.error('❌ TOUTES LES TRADUCTIONS DIRECTES ONT ÉCHOUÉ');
+        return null;
 
     } catch (error) {
-        console.error('❌ ERREUR CATASTROPHIQUE:', error);
+        console.error('❌ ERREUR TRADUCTION:', error);
         return null;
     }
+}
+
+// ===================================
+// DEEPL DIRECT (CLIENT-SIDE)
+// ===================================
+
+async function translateWithDeepLDirect(text) {
+    // ⚠️ ATTENTION: Clé API exposée côté client (pas sécurisé mais fonctionne)
+    const DEEPL_API_KEY = window.DEEPL_API_KEY || 'TONNE_CLE_DEEPL_ICI';
+    const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
+
+    console.log(`🔄 DeepL Direct (${text.length} chars)...`);
+
+    const response = await fetch(DEEPL_API_URL, {
+        method: 'POST',
+        headers: {
+            'Authorization': `DeepL-Auth-Key ${DEEPL_API_KEY}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            text: [text],
+            target_lang: 'FR',
+            source_lang: 'EN'
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`DeepL API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.translations && data.translations[0]) {
+        return data.translations[0].text;
+    }
+
+    throw new Error('No translation returned from DeepL');
+}
+
+// ===================================
+// LIBRETRANSLATE DIRECT (CLIENT-SIDE)
+// ===================================
+
+async function translateWithLibreTranslateDirect(text) {
+    const LIBRETRANSLATE_API_URL = 'https://libretranslate.com/translate';
+
+    console.log(`🔄 LibreTranslate Direct (${text.length} chars)...`);
+
+    const response = await fetch(LIBRETRANSLATE_API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            q: text,
+            source: 'en',
+            target: 'fr',
+            format: 'text'
+        })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`LibreTranslate API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.translatedText) {
+        return data.translatedText;
+    }
+
+    throw new Error('No translation returned from LibreTranslate');
+}
+
+// ===================================
+// VÉRIFICATION DE TRADUCTION FRANÇAISE
+// ===================================
+
+function isRealFrenchTranslation(original, translation) {
+    if (!translation || translation.length < 10) return false;
+
+    // Pas identique à l'original
+    if (translation.toLowerCase() === original.toLowerCase()) return false;
+
+    // Contient des caractères français
+    const hasFrenchChars = /[àâäéèêëïîôöùûüÿç]/i.test(translation);
+
+    // Pas juste de l'anglais avec des accents
+    const withoutAccents = translation.replace(/[àâäéèêëïîôöùûüÿç]/gi, '');
+    if (withoutAccents.toLowerCase() === original.toLowerCase()) return false;
+
+    return hasFrenchChars;
 }
 
 // ===================================
