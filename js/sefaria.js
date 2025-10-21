@@ -737,6 +737,64 @@ async function translateToFrench(text) {
     }
 }
 
+// 🔇 Version SILENCIEUSE pour traduction par lots (pas de barre de progression interne)
+async function translateToFrenchSilent(text) {
+    // Convertir en string si nécessaire
+    if (typeof text !== 'string') {
+        if (Array.isArray(text)) {
+            text = text.join(' ');
+        } else if (text && typeof text === 'object') {
+            text = JSON.stringify(text);
+        } else {
+            return '';
+        }
+    }
+
+    if (!text || text.trim() === '') return '';
+
+    try {
+        // Si le texte est court (≤ 450 caractères), traduction directe
+        if (text.length <= 450) {
+            const translated = await translateChunk(text, true);
+            return (translated && translated !== text) ? translated : null;
+        }
+
+        // TEXTE LONG: Découper en chunks SANS afficher de barre
+        const chunks = splitTextIntoChunks(text, 450);
+        const translatedChunks = [];
+        let successCount = 0;
+
+        // Traduire chaque chunk SANS barre de progression
+        for (let i = 0; i < chunks.length; i++) {
+            const translated = await translateChunk(chunks[i], true);
+
+            if (translated) {
+                translatedChunks.push(translated);
+                successCount++;
+            } else {
+                translatedChunks.push('');
+            }
+
+            // Pause entre chunks
+            if (i < chunks.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+        }
+
+        // Si moins de 50% de succès, retourner null
+        if (successCount < chunks.length * 0.5) {
+            return null;
+        }
+
+        // Recombiner
+        return translatedChunks.filter(c => c.length > 0).join(' ');
+
+    } catch (error) {
+        console.error('Silent translation error:', error);
+        return null;
+    }
+}
+
 // ===================================
 // Setup Event Listeners
 // ===================================
