@@ -540,25 +540,78 @@ function hideTranslationProgress() {
 }
 
 // ===================================
-// Traduction via Netlify Function (OpenRouter 5 modèles gratuits)
+// SYSTÈME DE TRADUCTION INTELLIGENT - VERSION FIXÉE
 // ===================================
 
-async function translateWithOpenRouter(text) {
+// Fonction de traduction qui FORCE le chunking pour éviter les erreurs 414
+async function translateTextIntelligent(text) {
     if (!text || text.trim() === '') {
         console.warn('⚠️ Texte vide');
         return null;
     }
     
-    console.log(`🔄 OpenRouter Multi-Model (${text.length} caractères)...`);
+    console.log(`🔄 Traduction intelligente (${text.length} caractères)...`);
     
+    // FORCER le chunking même pour les textes courts si > 400 caractères
+    if (text.length > 400) {
+        console.log(`📏 Texte long détecté - Découpage forcé...`);
+        return await translateTextWithChunking(text);
+    } else {
+        // Texte court - traduction directe
+        return await translateSingleChunk(text);
+    }
+}
+
+// Découpe un texte en chunks intelligents
+function splitTextIntelligent(text, maxLength = 400) {
+    if (text.length <= maxLength) return [text];
+    
+    const chunks = [];
+    const sentences = text.split(/(?<=[.!?])\s+/);
+    let currentChunk = '';
+    
+    for (const sentence of sentences) {
+        if (sentence.length > maxLength) {
+            // Phrase trop longue - découper par mots
+            if (currentChunk) {
+                chunks.push(currentChunk.trim());
+                currentChunk = '';
+            }
+            
+            const words = sentence.split(' ');
+            for (const word of words) {
+                if ((currentChunk + ' ' + word).length > maxLength) {
+                    if (currentChunk) chunks.push(currentChunk.trim());
+                    currentChunk = word;
+                } else {
+                    currentChunk += (currentChunk ? ' ' : '') + word;
+                }
+            }
+        } else {
+            if ((currentChunk + ' ' + sentence).length > maxLength) {
+                chunks.push(currentChunk.trim());
+                currentChunk = sentence;
+            } else {
+                currentChunk += (currentChunk ? ' ' : '') + sentence;
+            }
+        }
+    }
+    
+    if (currentChunk) chunks.push(currentChunk.trim());
+    return chunks.filter(c => c.length > 0);
+}
+
+// Traduit un seul chunk
+async function translateSingleChunk(chunk) {
     try {
-        // Appeler la Netlify Function sécurisée
+        console.log(`🔄 Traduction chunk (${chunk.length} caractères)...`);
+        
         const response = await fetch('/.netlify/functions/translate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({ text: chunk })
         });
         
         if (!response.ok) {
@@ -568,8 +621,6 @@ async function translateWithOpenRouter(text) {
         }
         
         const data = await response.json();
-        console.log('📦 Réponse:', data);
-        
         const french = data.french;
         
         if (!french || typeof french !== 'string') {
@@ -579,19 +630,54 @@ async function translateWithOpenRouter(text) {
         
         const cleanFrench = french.trim();
         
-        // Vérifier que ce n'est pas identique à l'anglais
-        if (cleanFrench.toLowerCase() === text.toLowerCase()) {
+        if (cleanFrench.toLowerCase() === chunk.toLowerCase()) {
             console.warn('⚠️ Traduction identique à l\'original');
             return null;
         }
         
-        console.log(`✅ SUCCÈS (${data.model || 'OpenRouter'}): "${cleanFrench.substring(0, 50)}..."`);
+        console.log(`✅ SUCCÈS: "${cleanFrench.substring(0, 50)}..."`);
         return cleanFrench;
         
     } catch (error) {
         console.error('❌ Erreur:', error);
         return null;
     }
+}
+
+// Traduit un texte avec chunking
+async function translateTextWithChunking(text) {
+    const chunks = splitTextIntelligent(text, 400);
+    console.log(`✂️ ${chunks.length} morceaux créés`);
+    
+    const translatedChunks = [];
+    let successCount = 0;
+    
+    for (let i = 0; i < chunks.length; i++) {
+        console.log(`🔄 Traduction morceau ${i + 1}/${chunks.length}...`);
+        
+        const translated = await translateSingleChunk(chunks[i]);
+        
+        if (translated) {
+            translatedChunks.push(translated);
+            successCount++;
+        } else {
+            translatedChunks.push(''); // Vide si échec
+        }
+        
+        // Pause entre chunks
+        if (i < chunks.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+    }
+    
+    console.log(`✅ Traduction terminée: ${successCount}/${chunks.length} morceaux traduits`);
+    
+    if (successCount < chunks.length * 0.5) {
+        console.warn(`❌ Échec de traduction: seulement ${successCount}/${chunks.length} morceaux traduits`);
+        return null;
+    }
+    
+    return translatedChunks.filter(c => c.length > 0).join(' ');
 }
 
 // ===================================
@@ -871,8 +957,8 @@ window.translateVerse = async function(verseNum, englishText) {
     try {
         console.log(`🔄 Traduction verset ${verseNum} avec système intelligent...`);
         
-        // Utiliser le système de chunking intelligent pour TOUT le texte
-        const french = await translateToFrench(englishText);
+        // Utiliser le nouveau système de traduction intelligent
+        const french = await translateTextIntelligent(englishText);
 
         if (french && french !== englishText) {
             // Succès - afficher la traduction complète
