@@ -549,12 +549,6 @@ async function translateWithOpenRouter(text) {
         return null;
     }
     
-    // Limiter à 500 caractères
-    if (text.length > 500) {
-        console.warn(`⚠️ Texte trop long (${text.length} car), limité à 500`);
-        text = text.substring(0, 500);
-    }
-    
     console.log(`🔄 OpenRouter Multi-Model (${text.length} caractères)...`);
     
     try {
@@ -700,7 +694,7 @@ async function translateToFrench(text) {
     try {
         // Si le texte est court (≤ 450 caractères), traduction directe
         if (text.length <= 450) {
-            const translated = await translateChunk(text, true);
+            const translated = await translateWithOpenRouter(text);
             // Ne retourner que si c'est une vraie traduction (pas l'anglais)
             return (translated && translated !== text) ? translated : null;
         }
@@ -725,7 +719,7 @@ async function translateToFrench(text) {
             // Mettre à jour la barre de progression
             updateTranslationProgress(i + 1, chunks.length, startTime);
             
-            const translated = await translateChunk(chunks[i], true);
+            const translated = await translateWithOpenRouter(chunks[i]);
             
             if (translated) {
                 translatedChunks.push(translated);
@@ -786,7 +780,7 @@ async function translateToFrenchSilent(text) {
     try {
         // Si le texte est court (≤ 450 caractères), traduction directe
         if (text.length <= 450) {
-            const translated = await translateChunk(text, true);
+            const translated = await translateWithOpenRouter(text);
             return (translated && translated !== text) ? translated : null;
         }
 
@@ -797,7 +791,7 @@ async function translateToFrenchSilent(text) {
 
         // Traduire chaque chunk SANS barre de progression
         for (let i = 0; i < chunks.length; i++) {
-            const translated = await translateChunk(chunks[i], true);
+            const translated = await translateWithOpenRouter(chunks[i]);
 
             if (translated) {
                 translatedChunks.push(translated);
