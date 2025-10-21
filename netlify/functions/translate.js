@@ -32,38 +32,14 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const GOOGLE_API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY?.trim();
+        console.log('🔄 MyMemory Translate:', text.substring(0, 50) + '...');
 
-        if (!GOOGLE_API_KEY) {
-            console.error('❌ Missing GOOGLE_TRANSLATE_API_KEY');
-            return {
-                statusCode: 500,
-                headers,
-                body: JSON.stringify({ 
-                    error: 'API key not configured'
-                })
-            };
-        }
-
-        console.log('🔄 Google Translate:', text.substring(0, 50) + '...');
-
-        // Google Translate API
-        const apiResponse = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                q: text,
-                source: 'en',
-                target: 'fr',
-                format: 'text'
-            })
-        });
+        // MyMemory API - Gratuit et fiable, pas de clé requise
+        const apiResponse = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|fr`);
 
         if (!apiResponse.ok) {
             const errorText = await apiResponse.text();
-            console.error('Google Translate error:', apiResponse.status, errorText);
+            console.error('MyMemory error:', apiResponse.status, errorText);
             return {
                 statusCode: apiResponse.status,
                 headers,
@@ -76,7 +52,7 @@ exports.handler = async (event, context) => {
         }
 
         const data = await apiResponse.json();
-        const french = data.data?.translations?.[0]?.translatedText;
+        const french = data.responseData?.translatedText;
 
         if (!french) {
             console.error('No translation in response');
