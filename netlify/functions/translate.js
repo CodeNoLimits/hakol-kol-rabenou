@@ -32,21 +32,25 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+        const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY?.trim();
 
         if (!OPENROUTER_API_KEY) {
             console.error('Missing OPENROUTER_API_KEY');
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({ error: 'API key not configured' })
+                body: JSON.stringify({ 
+                    error: 'API key not configured',
+                    debug: {
+                        envVarExists: !!process.env.OPENROUTER_API_KEY,
+                        envVarLength: process.env.OPENROUTER_API_KEY?.length,
+                        envVarStart: process.env.OPENROUTER_API_KEY?.substring(0, 15)
+                    }
+                })
             };
         }
 
-        // Vérifions que la clé est bien présente (sans l'afficher)
-        console.log('API Key present:', !!OPENROUTER_API_KEY);
-        console.log('API Key length:', OPENROUTER_API_KEY?.length);
-        console.log('API Key starts with:', OPENROUTER_API_KEY?.substring(0, 10));
+        console.log('✅ API Key OK - Length:', OPENROUTER_API_KEY.length);
         console.log('Translating:', text.substring(0, 50));
 
         const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
