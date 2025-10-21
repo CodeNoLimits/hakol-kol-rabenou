@@ -465,11 +465,19 @@ function buildVerseHTMLSync(verseNum, hebrew, english, french = '') {
     // Afficher le français s'il existe et est différent de l'anglais
     if (french && french.trim() && french !== english && !french.includes('[EN]')) {
         html += `
-            <div class="translation-badge french">Français (Auto)</div>
-            <div class="verse-text french">${french}</div>
+            <div class="translation-badge french">Français (Traduit)</div>
+            <div class="verse-text french" id="french-${verseNum}">${french}</div>
+        `;
+    } else if (english && english.trim() && !french) {
+        // Bouton pour traduire à la demande
+        html += `
+            <button class="translate-btn" onclick="translateVerse(${verseNum}, \`${english.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" id="translate-btn-${verseNum}">
+                🇫🇷 Traduire en français
+            </button>
+            <div class="verse-text french" id="french-${verseNum}" style="display: none;"></div>
         `;
     }
-    
+
     html += '</div>';
     return html;
 }
@@ -777,6 +785,87 @@ function setupEventListeners() {
     
     if (prevBtn) prevBtn.addEventListener('click', loadPreviousSection);
     if (nextBtn) nextBtn.addEventListener('click', loadNextSection);
+}
+
+// ===================================
+// Traduction À LA DEMANDE d'un verset
+// ===================================
+async function translateVerse(verseNum, englishText) {
+    const button = document.getElementById(`translate-btn-${verseNum}`);
+    const frenchDiv = document.getElementById(`french-${verseNum}`);
+
+    if (!button || !frenchDiv) return;
+
+    // Désactiver le bouton et afficher loading
+    button.disabled = true;
+    button.innerHTML = '⏳ Traduction...';
+
+    try {
+        // Traduire le texte anglais
+        const french = await translateToFrench(englishText);
+
+        if (french && french !== englishText) {
+            // Succès - afficher la traduction
+            frenchDiv.innerHTML = french;
+            frenchDiv.style.display = 'block';
+
+            // Remplacer bouton par badge
+            button.outerHTML = '<div class="translation-badge french">Français (Traduit)</div>';
+
+            console.log(`✅ Verset ${verseNum} traduit avec succès`);
+        } else {
+            // Échec de traduction
+            button.disabled = false;
+            button.innerHTML = '⚠️ Réessayer';
+            button.title = 'La traduction a échoué, cliquez pour réessayer';
+
+            console.warn(`❌ Échec traduction verset ${verseNum}`);
+        }
+    } catch (error) {
+        console.error(`Erreur traduction verset ${verseNum}:`, error);
+
+        // Afficher erreur
+        button.disabled = false;
+        button.innerHTML = '❌ Erreur';
+        button.title = error.message;
+    }
+}
+
+// Bouton "Traduire TOUT" pour traduire tous les versets non traduits
+async function translateAllVerses() {
+    const allButtons = document.querySelectorAll('.translate-btn');
+
+    if (allButtons.length === 0) {
+        alert('Tous les versets sont déjà traduits !');
+        return;
+    }
+
+    if (!confirm(`Traduire ${allButtons.length} verset(s) en français ?`)) {
+        return;
+    }
+
+    console.log(`🔄 Début traduction de ${allButtons.length} versets...`);
+
+    for (let i = 0; i < allButtons.length; i++) {
+        const button = allButtons[i];
+        const verseNum = button.id.replace('translate-btn-', '');
+
+        // Extraire le texte anglais du onclick
+        const onclickAttr = button.getAttribute('onclick');
+        const match = onclickAttr.match(/translateVerse\(\d+,\s*`([^`]+)`\)/);
+
+        if (match && match[1]) {
+            await translateVerse(parseInt(verseNum), match[1]);
+
+            // Petite pause entre chaque (évite rate limiting)
+            if (i < allButtons.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+    }
+
+    console.log(`✅ Traduction terminée !`);
+    alert('Traduction terminée !');
 }
 
 // ===================================
