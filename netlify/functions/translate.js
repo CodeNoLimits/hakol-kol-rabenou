@@ -43,6 +43,10 @@ exports.handler = async (event, context) => {
             };
         }
 
+        // Vérifions que la clé est bien présente (sans l'afficher)
+        console.log('API Key present:', !!OPENROUTER_API_KEY);
+        console.log('API Key length:', OPENROUTER_API_KEY?.length);
+        console.log('API Key starts with:', OPENROUTER_API_KEY?.substring(0, 10));
         console.log('Translating:', text.substring(0, 50));
 
         const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
