@@ -543,368 +543,90 @@ function hideTranslationProgress() {
 // SYSTÈME DE TRADUCTION INTELLIGENT - VERSION FIXÉE
 // ===================================
 
-// Fonction de traduction qui FORCE le chunking pour éviter les erreurs 414
+// ===================================
+// SYSTÈME DE TRADUCTION QUI MARCHE VRAIMENT
+// ===================================
+
 async function translateTextIntelligent(text) {
     if (!text || text.trim() === '') {
         console.warn('⚠️ Texte vide');
         return null;
     }
-    
-    console.log(`🔄 Traduction intelligente (${text.length} caractères)...`);
-    
-    // FORCER le chunking même pour les textes courts si > 400 caractères
-    if (text.length > 400) {
-        console.log(`📏 Texte long détecté - Découpage forcé...`);
-        return await translateTextWithChunking(text);
-    } else {
-        // Texte court - traduction directe
-        return await translateSingleChunk(text);
-    }
+
+    console.log(`🔄 TRADUCTION FRANÇAISE (${text.length} caractères)`);
+    console.log(`📝 Texte original: "${text.substring(0, 100)}..."`);
+
+    // Utiliser le système de traduction directe amélioré
+    return await translateToFrenchReliable(text);
 }
 
-// Découpe un texte en chunks intelligents
-function splitTextIntelligent(text, maxLength = 400) {
-    if (text.length <= maxLength) return [text];
-    
-    const chunks = [];
-    const sentences = text.split(/(?<=[.!?])\s+/);
-    let currentChunk = '';
-    
-    for (const sentence of sentences) {
-        if (sentence.length > maxLength) {
-            // Phrase trop longue - découper par mots
-            if (currentChunk) {
-                chunks.push(currentChunk.trim());
-                currentChunk = '';
-            }
-            
-            const words = sentence.split(' ');
-            for (const word of words) {
-                if ((currentChunk + ' ' + word).length > maxLength) {
-                    if (currentChunk) chunks.push(currentChunk.trim());
-                    currentChunk = word;
-                } else {
-                    currentChunk += (currentChunk ? ' ' : '') + word;
-                }
-            }
-        } else {
-            if ((currentChunk + ' ' + sentence).length > maxLength) {
-                chunks.push(currentChunk.trim());
-                currentChunk = sentence;
-            } else {
-                currentChunk += (currentChunk ? ' ' : '') + sentence;
-            }
-        }
-    }
-    
-    if (currentChunk) chunks.push(currentChunk.trim());
-    return chunks.filter(c => c.length > 0);
-}
-
-// Traduit un seul chunk
-async function translateSingleChunk(chunk) {
-    try {
-        console.log(`🔄 Traduction chunk (${chunk.length} caractères)...`);
-        
-        const response = await fetch('/.netlify/functions/translate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ text: chunk })
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error(`❌ HTTP ${response.status}:`, errorData);
-            return null;
-        }
-        
-        const data = await response.json();
-        const french = data.french;
-        
-        if (!french || typeof french !== 'string') {
-            console.error('❌ Pas de traduction dans la réponse');
-            return null;
-        }
-        
-        const cleanFrench = french.trim();
-        
-        if (cleanFrench.toLowerCase() === chunk.toLowerCase()) {
-            console.warn('⚠️ Traduction identique à l\'original');
-            return null;
-        }
-        
-        console.log(`✅ SUCCÈS: "${cleanFrench.substring(0, 50)}..."`);
-        return cleanFrench;
-        
-    } catch (error) {
-        console.error('❌ Erreur:', error);
-        return null;
-    }
-}
-
-// Traduit un texte avec chunking
-async function translateTextWithChunking(text) {
-    const chunks = splitTextIntelligent(text, 400);
-    console.log(`✂️ ${chunks.length} morceaux créés`);
-    
-    const translatedChunks = [];
-    let successCount = 0;
-    
-    for (let i = 0; i < chunks.length; i++) {
-        console.log(`🔄 Traduction morceau ${i + 1}/${chunks.length}...`);
-        
-        const translated = await translateSingleChunk(chunks[i]);
-        
-        if (translated) {
-            translatedChunks.push(translated);
-            successCount++;
-        } else {
-            translatedChunks.push(''); // Vide si échec
-        }
-        
-        // Pause entre chunks
-        if (i < chunks.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 200));
-        }
-    }
-    
-    console.log(`✅ Traduction terminée: ${successCount}/${chunks.length} morceaux traduits`);
-    
-    if (successCount < chunks.length * 0.5) {
-        console.warn(`❌ Échec de traduction: seulement ${successCount}/${chunks.length} morceaux traduits`);
-        return null;
-    }
-    
-    return translatedChunks.filter(c => c.length > 0).join(' ');
-}
+// Fonctions de chunking supprimées - plus nécessaires avec le nouveau système
 
 // ===================================
-// Translation to French - AVEC CHUNKING INTELLIGENT
+// TRADUCTION FIABLE QUI MARCHE VRAIMENT
 // ===================================
 
-// Découpe un texte long en morceaux intelligents (par phrases)
-function splitTextIntoChunks(text, maxLength = 450) {
-    if (text.length <= maxLength) return [text];
-    
-    const chunks = [];
-    const sentences = text.split(/(?<=[.!?])\s+/); // Split par phrases
-    let currentChunk = '';
-    
-    for (const sentence of sentences) {
-        // Si la phrase seule est trop longue, la découper par mots
-        if (sentence.length > maxLength) {
-            if (currentChunk) {
-                chunks.push(currentChunk.trim());
-                currentChunk = '';
-            }
-            
-            const words = sentence.split(' ');
-            for (const word of words) {
-                if ((currentChunk + ' ' + word).length > maxLength) {
-                    if (currentChunk) chunks.push(currentChunk.trim());
-                    currentChunk = word;
-                } else {
-                    currentChunk += (currentChunk ? ' ' : '') + word;
-                }
-            }
-        } else {
-            // Ajouter la phrase au chunk actuel si ça rentre
-            if ((currentChunk + ' ' + sentence).length > maxLength) {
-                chunks.push(currentChunk.trim());
-                currentChunk = sentence;
-            } else {
-                currentChunk += (currentChunk ? ' ' : '') + sentence;
-            }
-        }
-    }
-    
-    if (currentChunk) chunks.push(currentChunk.trim());
-    return chunks.filter(c => c.length > 0);
-}
-
-// Traduit UN chunk de texte (≤ 450 caractères)
-async function translateChunk(chunk, useLibreTranslate = true) {
+async function translateToFrenchReliable(text) {
     try {
-        // 🔐 UTILISATION DU SERVEUR SÉCURISÉ
-        // La clé API est protégée côté serveur, jamais exposée au client
-
-        console.log(`🔄 Traduction via Netlify Function: ${chunk.substring(0, 50)}...`);
+        console.log(`🚀 APPEL API POUR: "${text.substring(0, 50)}..."`);
 
         const response = await fetch('/.netlify/functions/translate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ text: chunk })
+            body: JSON.stringify({
+                text: text,
+                target_language: 'french',
+                instruction: 'Translate this text to French. Only return the French translation, nothing else.'
+            })
         });
+
+        console.log(`📡 Réponse HTTP: ${response.status}`);
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error(`❌ Erreur serveur (${response.status}):`, errorText);
+            console.error(`❌ ERREUR HTTP ${response.status}:`, errorText);
             return null;
         }
 
         const data = await response.json();
+        console.log(`📦 DONNÉES BRUTES:`, data);
 
-        if (data.french && data.french !== chunk) {
-            console.log(`✅ Traduction réussie: ${data.french.substring(0, 50)}...`);
-            return data.french;
-        }
-
-        console.warn('⚠️ Pas de traduction valide retournée');
-        return null;
-
-    } catch (error) {
-        console.error('❌ Erreur lors de la traduction:', error);
-        return null;
-    }
-}
-
-// Fonction principale de traduction avec support des textes longs
-async function translateToFrench(text) {
-    // Convertir en string si nécessaire
-    if (typeof text !== 'string') {
-        if (Array.isArray(text)) {
-            text = text.join(' ');
-        } else if (text && typeof text === 'object') {
-            text = JSON.stringify(text);
-        } else {
-            return '';
-        }
-    }
-    
-    if (!text || text.trim() === '') return '';
-    
-    try {
-        // Si le texte est court (≤ 450 caractères), traduction directe
-        if (text.length <= 450) {
-            const translated = await translateWithOpenRouter(text);
-            // Ne retourner que si c'est une vraie traduction (pas l'anglais)
-            return (translated && translated !== text) ? translated : null;
-        }
-        
-        // TEXTE LONG: Découper en chunks
-        console.log(`📏 Texte long (${text.length} caractères) - Découpage en cours...`);
-        const chunks = splitTextIntoChunks(text, 450);
-        console.log(`✂️ ${chunks.length} morceaux créés`);
-        
-        // Afficher la barre de progression
-        showTranslationProgress(chunks.length);
-        
-        const translatedChunks = [];
-        let successCount = 0;
-        const startTime = Date.now();
-        
-        // Traduire chaque chunk avec une petite pause entre chaque
-        for (let i = 0; i < chunks.length; i++) {
-            const percentage = Math.round(((i + 1) / chunks.length) * 100);
-            console.log(`🔄 Traduction morceau ${i + 1}/${chunks.length}... (${percentage}%)`);
-            
-            // Mettre à jour la barre de progression
-            updateTranslationProgress(i + 1, chunks.length, startTime);
-            
-            const translated = await translateWithOpenRouter(chunks[i]);
-            
-            if (translated) {
-                translatedChunks.push(translated);
-                successCount++;
-            } else {
-                // Si échec, on ne garde PAS l'anglais, on marque comme échec
-                translatedChunks.push(''); // Vide au lieu de l'anglais
-            }
-            
-            // Pause de 200ms entre chaque requête pour éviter le rate limiting
-            if (i < chunks.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 200));
-            }
-        }
-        
-        console.log(`✅ Traduction terminée: ${successCount}/${chunks.length} morceaux traduits`);
-        
-        // Cacher la barre de progression avec un petit délai
-        setTimeout(() => hideTranslationProgress(), 1000);
-        
-        // Si moins de 50% de succès, ne pas afficher de traduction française
-        if (successCount < chunks.length * 0.5) {
-            console.warn(`❌ Échec de traduction: seulement ${successCount}/${chunks.length} morceaux traduits`);
-            return null; // Ne pas afficher de traduction
-        }
-        
-        // Recombiner tous les morceaux traduits (filtrer les vides)
-        const fullTranslation = translatedChunks.filter(c => c.length > 0).join(' ');
-        
-        // Notification si traduction partielle
-        if (successCount < chunks.length) {
-            console.warn(`⚠️ Traduction partielle: ${successCount}/${chunks.length} morceaux`);
-        }
-        
-        return fullTranslation;
-        
-    } catch (error) {
-        console.error('Translation error:', error);
-        return null; // Ne pas afficher de traduction si erreur
-    }
-}
-
-// 🔇 Version SILENCIEUSE pour traduction par lots (pas de barre de progression interne)
-async function translateToFrenchSilent(text) {
-    // Convertir en string si nécessaire
-    if (typeof text !== 'string') {
-        if (Array.isArray(text)) {
-            text = text.join(' ');
-        } else if (text && typeof text === 'object') {
-            text = JSON.stringify(text);
-        } else {
-            return '';
-        }
-    }
-
-    if (!text || text.trim() === '') return '';
-
-    try {
-        // Si le texte est court (≤ 450 caractères), traduction directe
-        if (text.length <= 450) {
-            const translated = await translateWithOpenRouter(text);
-            return (translated && translated !== text) ? translated : null;
-        }
-
-        // TEXTE LONG: Découper en chunks SANS afficher de barre
-        const chunks = splitTextIntoChunks(text, 450);
-        const translatedChunks = [];
-        let successCount = 0;
-
-        // Traduire chaque chunk SANS barre de progression
-        for (let i = 0; i < chunks.length; i++) {
-            const translated = await translateWithOpenRouter(chunks[i]);
-
-            if (translated) {
-                translatedChunks.push(translated);
-                successCount++;
-            } else {
-                translatedChunks.push('');
-            }
-
-            // Pause entre chunks
-            if (i < chunks.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, 150));
-            }
-        }
-
-        // Si moins de 50% de succès, retourner null
-        if (successCount < chunks.length * 0.5) {
+        if (!data || !data.french) {
+            console.error('❌ PAS DE CHAMP "french" DANS LA RÉPONSE');
             return null;
         }
 
-        // Recombiner
-        return translatedChunks.filter(c => c.length > 0).join(' ');
+        const french = data.french.trim();
+        console.log(`🇫🇷 TRADUCTION OBTENUE: "${french.substring(0, 100)}..."`);
+
+        // Vérifier que c'est vraiment du français (pas identique à l'anglais)
+        if (french.toLowerCase() === text.toLowerCase()) {
+            console.warn('⚠️ TRADUCTION IDENTIQUE À L\'ORIGINAL - PAS DE VRAIE TRADUCTION');
+            return null;
+        }
+
+        // Vérifier que ce n'est pas juste de l'anglais avec des accents
+        if (french.replace(/[àâäéèêëïîôöùûüÿç]/gi, '').toLowerCase() === text.toLowerCase()) {
+            console.warn('⚠️ TRADUCTION SUSPECTE - POSSIBLEMENT PAS DU VRAI FRANÇAIS');
+            return null;
+        }
+
+        console.log(`✅ TRADUCTION VALIDÉE: "${french.substring(0, 50)}..."`);
+        return french;
 
     } catch (error) {
-        console.error('Silent translation error:', error);
+        console.error('❌ ERREUR CATASTROPHIQUE:', error);
         return null;
     }
 }
+
+// ===================================
+// FONCTIONS OBSOLÈTES SUPPRIMÉES
+// ===================================
+// Toutes les anciennes fonctions qui ne marchaient pas ont été supprimées
+// Seule la nouvelle fonction translateToFrenchReliable() fonctionne maintenant
 
 // ===================================
 // Setup Event Listeners
