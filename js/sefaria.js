@@ -33,25 +33,25 @@ const BRESLOV_TEXTS = [
         maxChapters: 326
     },
     {
-        name: 'Sefer HaMidot',
+        name: 'Sefer_HaMidot',
         hebrewName: 'ספר המדות',
-        ref: 'Sefer HaMidot',
+        ref: 'Sefer_HaMidot',
         description: 'Le Livre des Traits de Caractère',
-        maxChapters: 50
+        maxChapters: 543
     },
     {
-        name: 'Sipurei Maasiot',
+        name: "Rabbi Nachman's Stories",
         hebrewName: 'סיפורי מעשיות',
-        ref: 'Sipurei Maasiot',
+        ref: "Rabbi Nachman's Stories",
         description: 'Les 13 Contes du Rabbi Nachman',
         maxChapters: 13
     },
     {
-        name: 'Likutei Etzot',
+        name: 'Likkutei_Etzot',
         hebrewName: 'ליקוטי עצות',
-        ref: 'Likutei Etzot',
+        ref: 'Likkutei_Etzot',
         description: 'Conseils pratiques du Rabbi Nachman',
-        maxChapters: 100
+        maxChapters: 153
     },
     {
         name: 'Likutei Tefilot',
@@ -65,7 +65,7 @@ const BRESLOV_TEXTS = [
         hebrewName: 'חיי מוהר"ן',
         ref: 'Chayei Moharan',
         description: 'Vie du Rabbi Nachman',
-        maxChapters: 100
+        maxChapters: 600
     }
 ];
 
@@ -379,19 +379,44 @@ async function displayText(textData, indexData) {
     // Determine if it's array or string
     const isArray = Array.isArray(hebrewText);
     
+    // NOUVELLE APPROCHE: Traduire TOUT le texte anglais EN UNE SEULE FOIS
+    let frenchTranslations = [];
+    
+    if (autoTranslate) {
+        if (isArray && englishText.length > 0) {
+            // Combiner tous les textes anglais avec un séparateur spécial
+            const combinedEnglish = englishText.filter(t => t && t.trim()).join(' ||| ');
+            
+            if (combinedEnglish) {
+                console.log(`🔄 Traduction du chapitre complet (${englishText.length} versets)...`);
+                const combinedFrench = await translateToFrench(combinedEnglish);
+                
+                if (combinedFrench) {
+                    // Découper la traduction en versets
+                    frenchTranslations = combinedFrench.split(' ||| ');
+                }
+            }
+        } else if (!isArray && englishText) {
+            const french = await translateToFrench(englishText);
+            if (french) frenchTranslations = [french];
+        }
+    }
+    
     if (isArray) {
         // Array of verses
         for (let i = 0; i < Math.max(hebrewText.length, englishText.length); i++) {
             const hebrew = hebrewText[i] || '';
             const english = englishText[i] || '';
+            const french = frenchTranslations[i] || '';
             
             if (hebrew || english) {
-                html += await buildVerseHTML(i + 1, hebrew, english);
+                html += buildVerseHTMLSync(i + 1, hebrew, english, french);
             }
         }
     } else {
         // Single text
-        html += await buildVerseHTML(1, hebrewText, englishText);
+        const french = frenchTranslations[0] || '';
+        html += buildVerseHTMLSync(1, hebrewText, englishText, french);
     }
     
     html += '</div>';
@@ -399,9 +424,9 @@ async function displayText(textData, indexData) {
 }
 
 // ===================================
-// Build Verse HTML
+// Build Verse HTML (Synchrone - traduction déjà faite)
 // ===================================
-async function buildVerseHTML(verseNum, hebrew, english) {
+function buildVerseHTMLSync(verseNum, hebrew, english, french = '') {
     let html = `<div class="verse-container">`;
     html += `<span class="verse-number">${verseNum}</span>`;
     
@@ -419,15 +444,12 @@ async function buildVerseHTML(verseNum, hebrew, english) {
         `;
     }
     
-    if (autoTranslate && english) {
-        const french = await translateToFrench(english);
-        // N'afficher que si la traduction est différente de l'anglais (vraie traduction)
-        if (french && french !== english && !french.includes('[EN]')) {
-            html += `
-                <div class="translation-badge french">Français (Auto)</div>
-                <div class="verse-text french">${french}</div>
-            `;
-        }
+    // Afficher le français s'il existe et est différent de l'anglais
+    if (french && french.trim() && french !== english && !french.includes('[EN]')) {
+        html += `
+            <div class="translation-badge french">Français (Auto)</div>
+            <div class="verse-text french">${french}</div>
+        `;
     }
     
     html += '</div>';
