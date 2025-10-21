@@ -545,6 +545,12 @@ function hideTranslationProgress() {
 async function translateWithOpenRouter(text) {
     if (!text || text.trim() === '') return null;
     
+    // ⚠️ LIMITE CRITIQUE: MyMemory supporte max ~500 caractères
+    if (text.length > 500) {
+        console.warn(`⚠️ Texte trop long (${text.length} car), limité à 500`);
+        text = text.substring(0, 500) + '...';
+    }
+    
     console.log(`🔄 MyMemory Translation: ${text.length} caractères...`);
     
     try {
