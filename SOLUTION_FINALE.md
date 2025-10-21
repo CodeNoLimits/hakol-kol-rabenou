@@ -342,3 +342,4 @@ const translated = await translateChunk(chunk, true);
 **Tests:** ✅ **Page de test disponible**  
 **Documentation:** ✅ **Complète**
 
+

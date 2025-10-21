@@ -540,52 +540,62 @@ function hideTranslationProgress() {
 }
 
 // ===================================
-// Traduction avec MyMemory (GRATUIT)
+// Traduction via Netlify Function (OpenRouter 5 modèles gratuits)
 // ===================================
+
 async function translateWithOpenRouter(text) {
-    if (!text || text.trim() === '') return null;
-    
-    // ⚠️ LIMITE CRITIQUE: MyMemory supporte max ~500 caractères
-    if (text.length > 500) {
-        console.warn(`⚠️ Texte trop long (${text.length} car), limité à 500`);
-        text = text.substring(0, 500) + '...';
+    if (!text || text.trim() === '') {
+        console.warn('⚠️ Texte vide');
+        return null;
     }
     
-    console.log(`🔄 MyMemory Translation: ${text.length} caractères...`);
+    // Limiter à 500 caractères
+    if (text.length > 500) {
+        console.warn(`⚠️ Texte trop long (${text.length} car), limité à 500`);
+        text = text.substring(0, 500);
+    }
+    
+    console.log(`🔄 OpenRouter Multi-Model (${text.length} caractères)...`);
     
     try {
-        // Appeler directement MyMemory API (fonctionne partout)
-        console.log('🔄 Appel MyMemory API...');
-        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|fr`);
+        // Appeler la Netlify Function sécurisée
+        const response = await fetch('/.netlify/functions/translate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text })
+        });
         
         if (!response.ok) {
-            console.error('Erreur MyMemory:', response.status);
+            const errorData = await response.json();
+            console.error(`❌ HTTP ${response.status}:`, errorData);
             return null;
         }
         
         const data = await response.json();
-        console.log('📦 Réponse MyMemory:', data);
+        console.log('📦 Réponse:', data);
         
-        let french = data.responseData?.translatedText;
+        const french = data.french;
         
-        if (french && typeof french === 'string') {
-            french = french.trim();
-            
-            // Vérifier que ce n'est pas identique à l'anglais
-            if (french.toLowerCase() === text.toLowerCase()) {
-                console.warn('⚠️ Traduction identique à l\'original, considéré comme échec');
-                return null;
-            }
-            
-            console.log(`✅ TRADUCTION RÉUSSIE: "${french.substring(0, 100)}..."`);
-            return french;
+        if (!french || typeof french !== 'string') {
+            console.error('❌ Pas de traduction dans la réponse');
+            return null;
         }
         
-        console.error('❌ Pas de traduction dans la réponse:', data);
-        return null;
+        const cleanFrench = french.trim();
+        
+        // Vérifier que ce n'est pas identique à l'anglais
+        if (cleanFrench.toLowerCase() === text.toLowerCase()) {
+            console.warn('⚠️ Traduction identique à l\'original');
+            return null;
+        }
+        
+        console.log(`✅ SUCCÈS (${data.model || 'OpenRouter'}): "${cleanFrench.substring(0, 50)}..."`);
+        return cleanFrench;
         
     } catch (error) {
-        console.error('❌ Erreur traduction MyMemory:', error);
+        console.error('❌ Erreur:', error);
         return null;
     }
 }
@@ -840,8 +850,11 @@ function setupEventListeners() {
 }
 
 // ===================================
-// Traduction À LA DEMANDE d'un verset
+// Traduction À LA DEMANDE d'un verset - PAR BLOCS DE 500 CARACTÈRES
 // ===================================
+
+// État de traduction pour chaque verset (garde en mémoire la position)
+const verseTranslationState = {};
 
 // Version avec décodage base64 (pour caractères spéciaux) - GLOBALE
 window.translateVerseB64 = async function(verseNum, englishB64) {
@@ -857,23 +870,69 @@ window.translateVerse = async function(verseNum, englishText) {
 
     if (!button || !frenchDiv) return;
 
+    // Initialiser l'état si nécessaire
+    if (!verseTranslationState[verseNum]) {
+        verseTranslationState[verseNum] = {
+            fullText: englishText,
+            translatedChars: 0,
+            translations: []
+        };
+    }
+
+    const state = verseTranslationState[verseNum];
+    const remainingChars = state.fullText.length - state.translatedChars;
+    const chunkSize = 500;
+
+    // Si déjà tout traduit
+    if (remainingChars <= 0) {
+        button.style.display = 'none';
+        return;
+    }
+
+    // Extraire le prochain chunk de 500 caractères
+    const chunk = state.fullText.substring(state.translatedChars, state.translatedChars + chunkSize);
+    const charsToTranslate = chunk.length;
+
     // Désactiver le bouton et afficher loading
     button.disabled = true;
-    button.innerHTML = '⏳ Traduction...';
+    const isFirstChunk = state.translatedChars === 0;
+    button.innerHTML = `⏳ Traduction en cours... (${charsToTranslate} caractères)`;
 
     try {
-        // Traduire avec MyMemory (GRATUIT)
-        const french = await translateWithOpenRouter(englishText);
+        // Traduire le chunk avec MyMemory (GRATUIT)
+        const french = await translateWithOpenRouter(chunk);
 
-        if (french && french !== englishText) {
-            // Succès - afficher la traduction
-            frenchDiv.innerHTML = french;
+        if (french && french !== chunk) {
+            // Succès - ajouter la traduction
+            state.translations.push(french);
+            state.translatedChars += charsToTranslate;
+
+            // Afficher toutes les traductions accumulées
+            frenchDiv.innerHTML = state.translations.join(' ');
             frenchDiv.style.display = 'block';
 
-            // Remplacer bouton par badge
-            button.outerHTML = '<div class="translation-badge french">Français (Traduit)</div>';
+            // Afficher un badge si c'est le premier chunk
+            if (isFirstChunk) {
+                const badge = document.createElement('div');
+                badge.className = 'translation-badge french';
+                badge.textContent = 'Français (Traduction progressive)';
+                frenchDiv.parentNode.insertBefore(badge, frenchDiv);
+            }
 
-            console.log(`✅ Verset ${verseNum} traduit avec succès`);
+            // Calculer combien il reste
+            const newRemaining = state.fullText.length - state.translatedChars;
+            
+            if (newRemaining > 0) {
+                // Il reste du texte - changer le bouton en "Continuer à traduire"
+                button.disabled = false;
+                const remainingToShow = Math.min(newRemaining, chunkSize);
+                button.innerHTML = `🔄 Continuer à traduire (${remainingToShow} caractères)`;
+                console.log(`✅ Bloc traduit. Reste: ${newRemaining} caractères`);
+            } else {
+                // Traduction complète !
+                button.outerHTML = '<div class="translation-badge success">✅ Traduction complète</div>';
+                console.log(`✅ Verset ${verseNum} entièrement traduit !`);
+            }
         } else {
             // Échec de traduction
             button.disabled = false;
@@ -887,7 +946,7 @@ window.translateVerse = async function(verseNum, englishText) {
 
         // Afficher erreur
         button.disabled = false;
-        button.innerHTML = '❌ Erreur';
+        button.innerHTML = '❌ Erreur - Réessayer';
         button.title = error.message;
     }
 }

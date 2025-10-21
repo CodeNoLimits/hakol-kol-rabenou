@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Gemini Direct</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover { background: #357ae8; }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+        .error { background: #ffcccc; }
+        .success { background: #ccffcc; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Gemini AI - Direct</h1>
+    <p>Cliquez pour tester la traduction avec Gemini</p>
+    
+    <button onclick="testGemini()">🚀 Tester Gemini</button>
+    
+    <div id="result">Résultat s'affichera ici...</div>
+
+    <script>
+        const API_KEY = 'AIzaSyDYfwXnw7dzCfULTw2pp-m0EvdJthzKQn4';
+        
+        async function testGemini() {
+            const result = document.getElementById('result');
+            result.className = '';
+            result.textContent = '⏳ Test en cours...';
+            
+            const testText = 'Hello, this is a test. How are you today?';
+            
+            try {
+                console.log('🔄 Appel Gemini API...');
+                
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Translate this text from English to French. Only return the translation, nothing else:\n\n${testText}`
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.1,
+                            maxOutputTokens: 1000
+                        }
+                    })
+                });
+                
+                console.log('Status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Erreur:', errorText);
+                    result.className = 'error';
+                    result.textContent = `❌ ERREUR HTTP ${response.status}\n\n${errorText}`;
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('Réponse complète:', data);
+                
+                const translation = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (translation) {
+                    result.className = 'success';
+                    result.textContent = `✅ SUCCÈS !\n\nOriginal:\n${testText}\n\nTraduction:\n${translation}\n\nRéponse complète:\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'error';
+                    result.textContent = `❌ Pas de traduction\n\nRéponse:\n${JSON.stringify(data, null, 2)}`;
+                }
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                result.className = 'error';
+                result.textContent = `❌ ERREUR\n\n${error.message}\n\n${error.stack}`;
+            }
+        }
+    </script>
+</body>
+</html>
+

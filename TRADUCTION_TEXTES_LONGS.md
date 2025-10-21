@@ -308,3 +308,4 @@ function splitTextIntoChunks(text, maxLength = 450) { // Modifier ici
 **Version:** 2.1 - Système de chunking intelligent  
 **Status:** ✅ Production-ready
 
+

@@ -9,6 +9,7 @@
     left: 0;
     right: 0;
     background: rgba(0, 0, 0, 0.9);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     padding: 20px;
     z-index: 9999;
@@ -412,6 +413,12 @@
 .translation-badge.french {
     background: #ddd6fe;
     color: #5b21b6;
+}
+
+.translation-badge.success {
+    background: #d1fae5;
+    color: #065f46;
+    font-weight: 700;
 }
 
 /* Text Navigation */

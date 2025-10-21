@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Traduction Progressive par Blocs</title>
+    <link rel="stylesheet" href="css/library.css">
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+        }
+
+        .verse-container {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .verse-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+        }
+
+        .verse-text {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+
+        .verse-text.english {
+            border-left: 3px solid #fbbf24;
+        }
+
+        .verse-text.french {
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .translation-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            margin-bottom: 0.5rem;
+        }
+
+        .translation-badge.english {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .translation-badge.french {
+            background: #ddd6fe;
+            color: #5b21b6;
+        }
+
+        .translation-badge.success {
+            background: #d1fae5;
+            color: #065f46;
+            font-weight: 700;
+        }
+
+        .translate-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .translate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .translate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            background: #f0fdf4;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #166534;
+        }
+
+        .stats strong {
+            color: #15803d;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1>🔄 Traduction Progressive par Blocs</h1>
+        <p class="subtitle">Système intelligent de traduction par morceaux de 500 caractères</p>
+
+        <div class="info-box">
+            <strong>💡 Comment ça marche :</strong>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li>Cliquez sur "Traduire en français" pour traduire les <strong>500 premiers caractères</strong></li>
+                <li>Le bouton devient "Continuer à traduire" pour les 500 suivants</li>
+                <li>Répétez jusqu'à voir "✅ Traduction complète"</li>
+            </ol>
+            <p style="margin-top: 10px; font-size: 13px;">
+                ✅ API Gemini AI : Traduction haute qualité<br>
+                ✅ Blocs de 500 caractères pour traduction progressive
+            </p>
+        </div>
+
+        <!-- Texte de test 1 : Court (< 500 caractères) -->
+        <div class="verse-container">
+            <span class="verse-number">1</span>
+            <div class="translation-badge english">English (Court - 200 caractères)</div>
+            <div class="verse-text english">
+                Rabbi Nachman of Breslov teaches that the essence of prayer is simplicity and honesty. 
+                When you speak to God, speak from your heart in your own words. This is called Hitbodedut, 
+                personal prayer in solitude.
+            </div>
+            
+            <button class="translate-btn" onclick="translateVerse(1, this.dataset.text)" data-text="Rabbi Nachman of Breslov teaches that the essence of prayer is simplicity and honesty. When you speak to God, speak from your heart in your own words. This is called Hitbodedut, personal prayer in solitude." id="translate-btn-1">
+                🇫🇷 Traduire en français
+            </button>
+            <div class="verse-text french" id="french-1" style="display: none;"></div>
+        </div>
+
+        <!-- Texte de test 2 : Long (> 1000 caractères) -->
+        <div class="verse-container">
+            <span class="verse-number">2</span>
+            <div class="translation-badge english">English (Long - 1200 caractères)</div>
+            <div class="verse-text english">
+                Rabbi Nachman of Breslov was one of the most influential Hasidic masters in Jewish history. 
+                Born in 1772 in Ukraine, he was the great-grandson of the Baal Shem Tov, the founder of Hasidism. 
+                Rabbi Nachman taught that every person, no matter how far they have fallen, can return to God through 
+                simple faith, joy, and personal prayer. He emphasized the practice of Hitbodedut, speaking to God 
+                in one's own words, as if talking to a close friend. His teachings stress the importance of never 
+                giving up hope, even in the darkest times. One of his most famous sayings is: "If you believe you 
+                can damage, believe you can fix." He also taught about the power of joy and music in spiritual service, 
+                saying "It is a great mitzvah to always be happy." His stories, known as the Sipurei Maasiot, contain 
+                deep mystical wisdom hidden in narrative form. Rabbi Nachman passed away in 1810 at the age of 38, but 
+                his teachings continue to inspire millions of people around the world. His followers gather annually 
+                in Uman, Ukraine, where he is buried, especially during Rosh Hashanah, fulfilling his promise that 
+                whoever visits his grave will never be lost.
+            </div>
+            
+            <button class="translate-btn" onclick="translateVerse(2, this.dataset.text)" data-text="Rabbi Nachman of Breslov was one of the most influential Hasidic masters in Jewish history. Born in 1772 in Ukraine, he was the great-grandson of the Baal Shem Tov, the founder of Hasidism. Rabbi Nachman taught that every person, no matter how far they have fallen, can return to God through simple faith, joy, and personal prayer. He emphasized the practice of Hitbodedut, speaking to God in one's own words, as if talking to a close friend. His teachings stress the importance of never giving up hope, even in the darkest times. One of his most famous sayings is: If you believe you can damage, believe you can fix. He also taught about the power of joy and music in spiritual service, saying It is a great mitzvah to always be happy. His stories, known as the Sipurei Maasiot, contain deep mystical wisdom hidden in narrative form. Rabbi Nachman passed away in 1810 at the age of 38, but his teachings continue to inspire millions of people around the world. His followers gather annually in Uman, Ukraine, where he is buried, especially during Rosh Hashanah, fulfilling his promise that whoever visits his grave will never be lost." id="translate-btn-2">
+                🇫🇷 Traduire en français
+            </button>
+            <div class="verse-text french" id="french-2" style="display: none;"></div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="stats">
+            <strong>📊 Statistiques de test :</strong><br>
+            • Verset 1 : ~200 caractères (1 clic suffit)<br>
+            • Verset 2 : ~1200 caractères (3 clics nécessaires : 500 + 500 + 200)<br>
+            • API utilisée : <strong>Gemini AI</strong> (haute qualité, traduction progressive)
+        </div>
+    </div>
+
+    <script>
+        // État de traduction pour chaque verset
+        const verseTranslationState = {};
+        
+        const GEMINI_API_KEY = 'AIzaSyDYfwXnw7dzCfULTw2pp-m0EvdJthzKQn4';
+
+        // Fonction de traduction Gemini AI (FIABLE ET RAPIDE)
+        async function translateWithMyMemory(text) {
+            if (!text || text.trim() === '') {
+                console.warn('⚠️ Texte vide');
+                return null;
+            }
+            
+            // Limiter à 500 caractères pour cohérence
+            if (text.length > 500) {
+                console.warn(`⚠️ Texte trop long (${text.length} car), limité à 500`);
+                text = text.substring(0, 500);
+            }
+            
+            console.log(`🔄 Gemini AI (${text.length} caractères)...`);
+            
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `Translate this text from English to French. Only return the translation, nothing else:\n\n${text}`
+                            }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.1,
+                            maxOutputTokens: 1000
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    console.error(`❌ HTTP ${response.status}:`, response.statusText);
+                    const errorData = await response.text();
+                    console.error('Erreur:', errorData);
+                    return null;
+                }
+                
+                const data = await response.json();
+                console.log('📦 Réponse Gemini:', data);
+                
+                const french = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (!french || typeof french !== 'string') {
+                    console.error('❌ Pas de traduction dans la réponse');
+                    return null;
+                }
+                
+                const cleanFrench = french.trim();
+                
+                // Vérifier que ce n'est pas identique à l'anglais
+                if (cleanFrench.toLowerCase() === text.toLowerCase()) {
+                    console.warn('⚠️ Traduction identique');
+                    return null;
+                }
+                
+                console.log(`✅ SUCCÈS (Gemini): "${cleanFrench.substring(0, 50)}..."`);
+                return cleanFrench;
+                
+            } catch (error) {
+                console.error('❌ Erreur Gemini:', error);
+                return null;
+            }
+        }
+
+        // Fonction principale de traduction
+        async function translateVerse(verseNum, englishText) {
+            const button = document.getElementById(`translate-btn-${verseNum}`);
+            const frenchDiv = document.getElementById(`french-${verseNum}`);
+
+            if (!button || !frenchDiv) return;
+
+            // Initialiser l'état si nécessaire
+            if (!verseTranslationState[verseNum]) {
+                verseTranslationState[verseNum] = {
+                    fullText: englishText,
+                    translatedChars: 0,
+                    translations: []
+                };
+            }
+
+            const state = verseTranslationState[verseNum];
+            const remainingChars = state.fullText.length - state.translatedChars;
+            const chunkSize = 500;
+
+            // Si déjà tout traduit
+            if (remainingChars <= 0) {
+                button.style.display = 'none';
+                return;
+            }
+
+            // Extraire le prochain chunk de 500 caractères
+            const chunk = state.fullText.substring(state.translatedChars, state.translatedChars + chunkSize);
+            const charsToTranslate = chunk.length;
+
+            // Désactiver le bouton et afficher loading
+            button.disabled = true;
+            const isFirstChunk = state.translatedChars === 0;
+            button.innerHTML = `⏳ Traduction en cours... (${charsToTranslate} caractères)`;
+
+            try {
+                // Traduire le chunk avec MyMemory
+                const french = await translateWithMyMemory(chunk);
+
+                if (french && french !== chunk) {
+                    // Succès - ajouter la traduction
+                    state.translations.push(french);
+                    state.translatedChars += charsToTranslate;
+
+                    // Afficher toutes les traductions accumulées
+                    frenchDiv.innerHTML = state.translations.join(' ');
+                    frenchDiv.style.display = 'block';
+
+                    // Afficher un badge si c'est le premier chunk
+                    if (isFirstChunk) {
+                        const badge = document.createElement('div');
+                        badge.className = 'translation-badge french';
+                        badge.textContent = 'Français (Traduction progressive)';
+                        frenchDiv.parentNode.insertBefore(badge, frenchDiv);
+                    }
+
+                    // Calculer combien il reste
+                    const newRemaining = state.fullText.length - state.translatedChars;
+                    
+                    if (newRemaining > 0) {
+                        // Il reste du texte - changer le bouton en "Continuer à traduire"
+                        button.disabled = false;
+                        const remainingToShow = Math.min(newRemaining, chunkSize);
+                        button.innerHTML = `🔄 Continuer à traduire (${remainingToShow} caractères)`;
+                        console.log(`✅ Bloc traduit. Reste: ${newRemaining} caractères`);
+                    } else {
+                        // Traduction complète !
+                        button.outerHTML = '<div class="translation-badge success">✅ Traduction complète</div>';
+                        console.log(`✅ Verset ${verseNum} entièrement traduit !`);
+                    }
+                } else {
+                    // Échec de traduction
+                    button.disabled = false;
+                    button.innerHTML = '⚠️ Réessayer';
+                    button.title = 'La traduction a échoué, cliquez pour réessayer';
+
+                    console.warn(`❌ Échec traduction verset ${verseNum}`);
+                }
+            } catch (error) {
+                console.error(`Erreur traduction verset ${verseNum}:`, error);
+
+                // Afficher erreur
+                button.disabled = false;
+                button.innerHTML = '❌ Erreur - Réessayer';
+                button.title = error.message;
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>🚀 OpenRouter - Traduction Multi-Modèles</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .subtitle {
+            text-align: center;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+        .verse {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #4CAF50;
+        }
+        .text-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+        .english { border-left: 3px solid #2196F3; }
+        .french { border-left: 3px solid #4CAF50; }
+        button {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            transition: all 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .console {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+            border: 2px solid #0f0;
+        }
+        .api-info {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .api-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 5px;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 OpenRouter Multi-Modèles</h1>
+        <div class="subtitle">5 modèles IA gratuits en fallback automatique</div>
+        
+        <div class="api-info">
+            <div class="api-badge">📡 Gemma 7B</div>
+            <div class="api-badge">🦙 Llama 3 8B</div>
+            <div class="api-badge">🌪️ Mistral 7B</div>
+            <div class="api-badge">🐦 Nous Capybara</div>
+            <div class="api-badge">⚡ Zephyr 7B</div>
+        </div>
+        
+        <div class="console" id="console">🟢 Système initialisé - 5 modèles disponibles<br></div>
+        
+        <div class="verse">
+            <h3>📖 Texte à traduire</h3>
+            <div class="text-box english" id="english">
+                Rabbi Nachman of Breslov teaches that the essence of prayer is simplicity and honesty. 
+                When you speak to God, speak from your heart in your own words. This is called Hitbodedut, 
+                personal prayer in solitude.
+            </div>
+            <button onclick="translateText()" id="translateBtn">
+                🇫🇷 Traduire en français
+            </button>
+            <div class="text-box french" id="french" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const consoleDiv = document.getElementById('console');
+        
+        function log(msg, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : type === 'warning' ? '#ff9800' : '#0f0';
+            console.log(`[${timestamp}] ${msg}`);
+            consoleDiv.innerHTML += `<span style="color: ${color}">[${timestamp}] ${msg}</span><br>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        // TA CLÉ OPENROUTER (remplace par ta vraie clé)
+        const OPENROUTER_KEY = 'sk-or-v1-YOUR-KEY-HERE';
+        
+        // Liste des modèles GRATUITS sur OpenRouter
+        const FREE_MODELS = [
+            {
+                name: 'Gemma 7B IT',
+                id: 'google/gemma-7b-it:free',
+                prompt: (text) => `Translate this English text to French. Only output the French translation, nothing else:\n\n${text}`
+            },
+            {
+                name: 'Llama 3 8B',
+                id: 'meta-llama/llama-3-8b-instruct:free',
+                prompt: (text) => `<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\nTranslate to French:\n${text}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n`
+            },
+            {
+                name: 'Mistral 7B',
+                id: 'mistralai/mistral-7b-instruct:free',
+                prompt: (text) => `[INST] Translate this to French:\n${text} [/INST]`
+            },
+            {
+                name: 'Nous Capybara 7B',
+                id: 'nousresearch/nous-capybara-7b:free',
+                prompt: (text) => `USER: Translate to French:\n${text}\n\nASSISTANT:`
+            },
+            {
+                name: 'Zephyr 7B Beta',
+                id: 'huggingfaceh4/zephyr-7b-beta:free',
+                prompt: (text) => `<|user|>\nTranslate to French:\n${text}</s>\n<|assistant|>\n`
+            }
+        ];
+        
+        async function callOpenRouter(model, text) {
+            const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${OPENROUTER_KEY}`,
+                    'HTTP-Referer': window.location.href,
+                    'X-Title': 'Hakol Kol Rabenou',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model.id,
+                    messages: [{
+                        role: 'user',
+                        content: model.prompt(text)
+                    }],
+                    max_tokens: 500,
+                    temperature: 0.3
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`HTTP ${response.status}: ${error}`);
+            }
+            
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content?.trim();
+        }
+        
+        async function translateText() {
+            const btn = document.getElementById('translateBtn');
+            const frenchDiv = document.getElementById('french');
+            const englishDiv = document.getElementById('english');
+            
+            const text = englishDiv.textContent.trim();
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Traduction en cours...';
+            frenchDiv.style.display = 'none';
+            
+            log(`🔄 Début traduction (${text.length} caractères)`, 'info');
+            
+            // Essayer chaque modèle dans l'ordre
+            for (let i = 0; i < FREE_MODELS.length; i++) {
+                const model = FREE_MODELS[i];
+                log(`🔌 Essai ${i+1}/${FREE_MODELS.length}: ${model.name}...`, 'info');
+                
+                try {
+                    const translation = await callOpenRouter(model, text);
+                    
+                    if (translation && translation.length > 10 && translation !== text) {
+                        frenchDiv.textContent = translation;
+                        frenchDiv.style.display = 'block';
+                        
+                        btn.textContent = `✅ Traduit avec ${model.name}`;
+                        btn.style.background = 'linear-gradient(135deg, #4CAF50, #45a049)';
+                        btn.disabled = false;
+                        
+                        log(`✅ SUCCÈS avec ${model.name} !`, 'success');
+                        log(`📝 Traduction: ${translation.substring(0, 80)}...`, 'success');
+                        return;
+                    } else {
+                        log(`⚠️ ${model.name}: réponse invalide`, 'warning');
+                    }
+                    
+                } catch (error) {
+                    log(`❌ ${model.name} échoué: ${error.message}`, 'error');
+                }
+                
+                // Petit délai entre chaque tentative
+                await new Promise(r => setTimeout(r, 500));
+            }
+            
+            // Toutes les APIs ont échoué
+            log(`❌ ÉCHEC TOTAL - Tous les modèles ont échoué`, 'error');
+            log(`💡 Vérifie ta clé OpenRouter dans le code`, 'warning');
+            btn.disabled = false;
+            btn.textContent = '⚠️ Réessayer';
+            btn.style.background = '#f44336';
+        }
+        
+        log('✅ 5 modèles gratuits chargés', 'success');
+        log('⚠️ N\'oublie pas de mettre ta clé OpenRouter !', 'warning');
+    </script>
+</body>
+</html>
+

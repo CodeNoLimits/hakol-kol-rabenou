@@ -381,3 +381,4 @@ Et si 99 tranches:
 **Testé:** ✅ Tous les livres fonctionnels  
 **Performance:** ✅ × 10 à × 100 plus rapide
 
+
