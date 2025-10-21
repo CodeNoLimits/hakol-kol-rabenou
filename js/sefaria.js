@@ -545,32 +545,24 @@ function hideTranslationProgress() {
 async function translateWithOpenRouter(text) {
     if (!text || text.trim() === '') return null;
     
-    console.log(`🔄 MyMemory via Netlify: ${text.length} caractères...`);
+    console.log(`🔄 MyMemory Translation: ${text.length} caractères...`);
     
     try {
-        // Appeler la Netlify Function au lieu de l'API directement
-        // La clé API est maintenant cachée côté serveur ✓
-        const response = await fetch('/.netlify/functions/translate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: text
-            })
-        });
+        // Appeler directement MyMemory API (fonctionne partout)
+        console.log('🔄 Appel MyMemory API...');
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|fr`);
         
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Erreur Netlify Function:', response.status, errorData);
+            console.error('Erreur MyMemory:', response.status);
             return null;
         }
         
         const data = await response.json();
+        let french = data.responseData?.translatedText;
         
-        if (data.french) {
-            const french = data.french.trim();
-            console.log(`✅ Traduit (sécurisé): ${french.substring(0, 50)}...`);
+        if (french) {
+            french = french.trim();
+            console.log(`✅ Traduit: ${french.substring(0, 50)}...`);
             return french;
         }
         
