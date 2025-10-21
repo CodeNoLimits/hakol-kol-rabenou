@@ -32,10 +32,10 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY?.trim();
+        const GOOGLE_API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY?.trim();
 
-        if (!OPENROUTER_API_KEY) {
-            console.error('❌ Missing OPENROUTER_API_KEY');
+        if (!GOOGLE_API_KEY) {
+            console.error('❌ Missing GOOGLE_TRANSLATE_API_KEY');
             return {
                 statusCode: 500,
                 headers,
@@ -45,36 +45,25 @@ exports.handler = async (event, context) => {
             };
         }
 
-        console.log('🔄 Translation request:', text.substring(0, 50) + '...');
+        console.log('🔄 Google Translate:', text.substring(0, 50) + '...');
 
-        const apiResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        // Google Translate API
+        const apiResponse = await fetch(`https://translation.googleapis.com/language/translate/v2?key=${GOOGLE_API_KEY}`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://hakol-kol-rabenou.netlify.app',
-                'X-Title': 'Hakol Kol Rabenou'
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                model: 'mistralai/mistral-7b-instruct:free',
-                messages: [
-                    {
-                        role: 'system',
-                        content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte anglais en français, sans commentaire ni explication. Retourne SEULEMENT la traduction.'
-                    },
-                    {
-                        role: 'user',
-                        content: text
-                    }
-                ],
-                temperature: 0.3,
-                max_tokens: 2000
+                q: text,
+                source: 'en',
+                target: 'fr',
+                format: 'text'
             })
         });
 
         if (!apiResponse.ok) {
             const errorText = await apiResponse.text();
-            console.error('OpenRouter error:', apiResponse.status, errorText);
+            console.error('Google Translate error:', apiResponse.status, errorText);
             return {
                 statusCode: apiResponse.status,
                 headers,
@@ -87,7 +76,7 @@ exports.handler = async (event, context) => {
         }
 
         const data = await apiResponse.json();
-        const french = data.choices?.[0]?.message?.content?.trim();
+        const french = data.data?.translations?.[0]?.translatedText;
 
         if (!french) {
             console.error('No translation in response');
