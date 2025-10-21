@@ -630,52 +630,43 @@ function splitTextIntoChunks(text, maxLength = 450) {
 // Traduit UN chunk de texte (≤ 450 caractères)
 async function translateChunk(chunk, useLibreTranslate = true) {
     try {
-        // Toujours utiliser MyMemory en priorité (plus fiable et gratuit)
-        const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}&langpair=en|fr`;
-        const response = await fetch(myMemoryUrl);
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data.responseData && data.responseData.translatedText) {
-                const translated = data.responseData.translatedText;
-                // Vérifier que ce n'est pas juste une copie de l'anglais
-                if (translated && translated !== chunk) {
-                    return translated;
-                }
-            }
+        // 🔐 UTILISATION DU SERVEUR SÉCURISÉ
+        // La clé API est protégée côté serveur, jamais exposée au client
+
+        // Détecter si on est en local (développement) ou en production (Netlify)
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const serverUrl = isLocal
+            ? 'http://localhost:3001/api/translate'  // Développement local
+            : 'https://hakol-kol-rabenou.netlify.app/.netlify/functions/translate';  // Production Netlify
+
+        console.log(`🔄 Traduction via serveur sécurisé: ${serverUrl}`);
+
+        const response = await fetch(serverUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: chunk })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`❌ Erreur serveur (${response.status}):`, errorText);
+            return null;
         }
-        
-        // Fallback: LibreTranslate (si MyMemory échoue)
-        if (useLibreTranslate) {
-            try {
-                const response2 = await fetch(LIBRE_TRANSLATE_API, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        q: chunk,
-                        source: 'en',
-                        target: 'fr',
-                        format: 'text'
-                    })
-                });
-                
-                if (response2.ok) {
-                    const data2 = await response2.json();
-                    if (data2.translatedText && data2.translatedText !== chunk) {
-                        return data2.translatedText;
-                    }
-                }
-            } catch (e) {
-                console.log('LibreTranslate failed:', e);
-            }
+
+        const data = await response.json();
+
+        if (data.french && data.french !== chunk) {
+            console.log(`✅ Traduction réussie: ${data.french.substring(0, 50)}...`);
+            return data.french;
         }
-        
+
+        console.warn('⚠️ Pas de traduction valide retournée');
         return null;
-        
+
     } catch (error) {
-        console.error('Translation chunk error:', error);
+        console.error('❌ Erreur lors de la traduction:', error);
         return null;
     }
 }

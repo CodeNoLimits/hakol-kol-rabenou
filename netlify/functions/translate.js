@@ -1,8 +1,17 @@
-// Netlify Function pour la traduction sécurisée
-// La clé API est stockée comme variable d'environnement
+/**
+ * 🔐 FONCTION NETLIFY SERVERLESS - TRADUCTION SÉCURISÉE
+ *
+ * Cette fonction serverless s'exécute sur Netlify avec la clé API sécurisée.
+ * Endpoint: /.netlify/functions/translate
+ *
+ * Configuration requise dans Netlify:
+ *   Environment Variables → OPENROUTER_API_KEY = sk-or-v1-...
+ */
+
+const fetch = require('node-fetch');
 
 exports.handler = async (event, context) => {
-    // CORS headers
+    // Headers CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -10,7 +19,7 @@ exports.handler = async (event, context) => {
         'Content-Type': 'application/json'
     };
 
-    // Handle preflight OPTIONS request
+    // Gérer les requêtes OPTIONS (CORS preflight)
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -19,54 +28,60 @@ exports.handler = async (event, context) => {
         };
     }
 
-    // Only allow POST
+    // Vérifier que c'est une requête POST
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
             headers,
-            body: JSON.stringify({ error: 'Method not allowed' })
+            body: JSON.stringify({ error: 'Méthode non autorisée. Utilisez POST.' })
         };
     }
 
     try {
-        // Parse request body
+        // Parser le body
         const { text } = JSON.parse(event.body);
 
         if (!text || typeof text !== 'string') {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({ error: 'Text parameter is required' })
+                body: JSON.stringify({
+                    error: 'Le champ "text" est requis et doit être une chaîne'
+                })
             };
         }
 
-        // Get API key from environment variable
-        const apiKey = process.env.OPENROUTER_API_KEY;
-        
-        if (!apiKey) {
-            console.error('OPENROUTER_API_KEY not configured');
+        console.log(\`🔄 Traduction Netlify: \${text.substring(0, 50)}...\`);
+
+        // Récupérer la clé API depuis les variables d'environnement Netlify
+        const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+
+        if (!OPENROUTER_API_KEY) {
+            console.error('❌ OPENROUTER_API_KEY manquante dans Netlify env vars');
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({ error: 'API key not configured' })
+                body: JSON.stringify({
+                    error: 'Configuration serveur manquante (clé API)'
+                })
             };
         }
 
-        // Call OpenRouter API
+        // Appel à OpenRouter API
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
+                'Authorization': \`Bearer \${OPENROUTER_API_KEY}\`,
                 'Content-Type': 'application/json',
                 'HTTP-Referer': 'https://hakol-kol-rabenou.netlify.app',
-                'X-Title': 'Hakol Kol Rabenou - Breslov Texts'
+                'X-Title': 'Hakol Kol Rabenou - Bibliothèque Breslov'
             },
             body: JSON.stringify({
                 model: 'google/gemini-2.0-flash-exp:free',
                 messages: [
                     {
                         role: 'system',
-                        content: 'Tu es un traducteur expert. Traduis UNIQUEMENT le texte anglais suivant en français, sans ajouter de commentaires, d\'explications ou de texte supplémentaire. Retourne SEULEMENT la traduction française.'
+                        content: 'Tu es un traducteur expert anglais-français spécialisé dans les textes religieux juifs. Traduis UNIQUEMENT le texte fourni en français, sans ajouter de commentaire, explication ou texte supplémentaire. Préserve le sens spirituel et les termes hébraïques importants.'
                     },
                     {
                         role: 'user',
@@ -74,53 +89,54 @@ exports.handler = async (event, context) => {
                     }
                 ],
                 temperature: 0.3,
-                max_tokens: Math.min(text.length * 3, 4000)
+                max_tokens: 2000
             })
         });
 
         if (!response.ok) {
             const errorData = await response.text();
-            console.error('OpenRouter API error:', response.status, errorData);
+            console.error(\`❌ Erreur OpenRouter: \${response.status}\`, errorData);
             return {
                 statusCode: response.status,
                 headers,
-                body: JSON.stringify({ 
-                    error: 'Translation API error',
-                    details: errorData 
+                body: JSON.stringify({
+                    error: \`Erreur API OpenRouter: \${response.status}\`,
+                    details: errorData
                 })
             };
         }
 
         const data = await response.json();
-        const translatedText = data.choices?.[0]?.message?.content?.trim();
+        const french = data.choices?.[0]?.message?.content?.trim();
 
-        if (!translatedText) {
+        if (!french) {
+            console.error('❌ Pas de traduction dans la réponse:', data);
             return {
                 statusCode: 500,
                 headers,
-                body: JSON.stringify({ error: 'No translation returned' })
+                body: JSON.stringify({
+                    error: 'Pas de traduction dans la réponse API'
+                })
             };
         }
+
+        console.log(\`✅ Traduction réussie: \${french.substring(0, 50)}...\`);
 
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ 
-                translation: translatedText,
-                usage: data.usage 
-            })
+            body: JSON.stringify({ french })
         };
 
     } catch (error) {
-        console.error('Translation function error:', error);
+        console.error('❌ Erreur fonction Netlify:', error);
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ 
-                error: 'Internal server error',
-                message: error.message 
+            body: JSON.stringify({
+                error: 'Erreur serveur lors de la traduction',
+                message: error.message
             })
         };
     }
 };
-
