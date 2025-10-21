@@ -54,7 +54,7 @@ exports.handler = async (event, context) => {
                 'X-Title': 'Hakol Kol Rabenou'
             },
             body: JSON.stringify({
-                model: 'google/gemini-2.0-flash-exp:free',
+                model: 'meta-llama/llama-3.2-3b-instruct:free',
                 messages: [
                     {
                         role: 'system',
