@@ -384,11 +384,22 @@ async function displayText(textData, indexData) {
     
     if (autoTranslate) {
         if (isArray && englishText.length > 0) {
-            // Combiner tous les textes anglais avec un séparateur spécial
-            const combinedEnglish = englishText.filter(t => t && t.trim()).join(' ||| ');
+            // Convertir chaque élément en string et filtrer les vides
+            const cleanedTexts = englishText.map(t => {
+                if (!t) return '';
+                // Si c'est un array, joindre
+                if (Array.isArray(t)) return t.join(' ');
+                // Si c'est un objet, stringify
+                if (typeof t === 'object') return JSON.stringify(t);
+                // Si c'est une string, retourner tel quel
+                return String(t);
+            }).filter(t => t && t.trim() !== '');
             
-            if (combinedEnglish) {
-                console.log(`🔄 Traduction du chapitre complet (${englishText.length} versets)...`);
+            if (cleanedTexts.length > 0) {
+                // Combiner tous les textes avec un séparateur spécial
+                const combinedEnglish = cleanedTexts.join(' ||| ');
+                
+                console.log(`🔄 Traduction du chapitre complet (${cleanedTexts.length} versets)...`);
                 const combinedFrench = await translateToFrench(combinedEnglish);
                 
                 if (combinedFrench) {
@@ -405,9 +416,13 @@ async function displayText(textData, indexData) {
     if (isArray) {
         // Array of verses
         for (let i = 0; i < Math.max(hebrewText.length, englishText.length); i++) {
-            const hebrew = hebrewText[i] || '';
-            const english = englishText[i] || '';
+            let hebrew = hebrewText[i] || '';
+            let english = englishText[i] || '';
             const french = frenchTranslations[i] || '';
+            
+            // Convertir en string si nécessaire
+            if (Array.isArray(hebrew)) hebrew = hebrew.join(' ');
+            if (Array.isArray(english)) english = english.join(' ');
             
             if (hebrew || english) {
                 html += buildVerseHTMLSync(i + 1, hebrew, english, french);
@@ -427,17 +442,26 @@ async function displayText(textData, indexData) {
 // Build Verse HTML (Synchrone - traduction déjà faite)
 // ===================================
 function buildVerseHTMLSync(verseNum, hebrew, english, french = '') {
+    // Convertir en string si nécessaire
+    if (Array.isArray(hebrew)) hebrew = hebrew.join(' ');
+    if (Array.isArray(english)) english = english.join(' ');
+    if (Array.isArray(french)) french = french.join(' ');
+    
+    hebrew = String(hebrew || '');
+    english = String(english || '');
+    french = String(french || '');
+    
     let html = `<div class="verse-container">`;
     html += `<span class="verse-number">${verseNum}</span>`;
     
-    if (showHebrew && hebrew) {
+    if (showHebrew && hebrew && hebrew.trim()) {
         html += `
             <div class="translation-badge hebrew">עברית</div>
             <div class="verse-text hebrew">${hebrew}</div>
         `;
     }
     
-    if (showEnglish && english) {
+    if (showEnglish && english && english.trim()) {
         html += `
             <div class="translation-badge english">English</div>
             <div class="verse-text english">${english}</div>
